@@ -1,0 +1,4 @@
+package com.option.refit.verification.dto;
+
+public class VerificationResponse {
+}
