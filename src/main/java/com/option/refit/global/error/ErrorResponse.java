@@ -6,8 +6,8 @@ import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
 @Getter
+@AllArgsConstructor // 필수 인자를 가진 생성자를 자동으로 생성
 public class ErrorResponse {
     private LocalDateTime timeStamp;
     private int status;

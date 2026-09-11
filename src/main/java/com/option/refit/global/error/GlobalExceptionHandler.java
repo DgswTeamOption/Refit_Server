@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-@RestControllerAdvice
+@RestControllerAdvice // 전역적으로 예외를 처리하기 위해 사용
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(CustomException.class)
+    @ExceptionHandler(CustomException.class) // Controller에 발생하는 에러 메서드로 처리
     public ResponseEntity<ErrorResponse> handlerCustomException(CustomException e) {
         return ResponseEntity
                 .status(e.getStatus())
