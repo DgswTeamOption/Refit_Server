@@ -31,13 +31,11 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
-.idea/
-build/
-out/
-.DS_Store
+.idea
 *.iws
 *.iml
 *.ipr
+out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
