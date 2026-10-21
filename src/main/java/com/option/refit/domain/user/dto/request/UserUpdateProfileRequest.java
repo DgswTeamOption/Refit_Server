@@ -9,9 +9,5 @@ import java.time.LocalDate;
 public record UserUpdateProfileRequest(
         @NotBlank
         @Size(max = 50, message = "이름은 50자 이하로 해주세요")
-        String name,
-
-        @NotNull
-        @Past(message = "생년월일은 과거 날짜여야 합니다")
-        LocalDate birthDate
+        String name
 ) {}

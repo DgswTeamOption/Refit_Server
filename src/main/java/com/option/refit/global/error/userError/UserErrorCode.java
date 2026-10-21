@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum UserErrorCode implements ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다"),
+    USER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "본인의 정보만 조회할 수 있습니다"),
     DUPLICATE_USERNAME_ON_UPDATE(HttpStatus.CONFLICT,"이미 사용 중인 아이디입니다"),
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST,"현재 비밀번호가 일치하지 않습니다"),
     INVALID_FILE_FORMAT(HttpStatus.BAD_REQUEST,"지원하지 않는 이미지 형식입니다"),

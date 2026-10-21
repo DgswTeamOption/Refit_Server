@@ -36,6 +36,9 @@ public class User {
     @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
 
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
+
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "role", updatable = false)
     private Role role;
@@ -63,9 +66,12 @@ public class User {
         this.name = newName;
     }
 
-    public void updateProfile(String name, LocalDate birthDate) {
+    public void updateProfile(String name) {
         this.name = name;
-        this.birthDate = birthDate;
+    }
+
+    public void changeProfileImage(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 
     public void delete() {

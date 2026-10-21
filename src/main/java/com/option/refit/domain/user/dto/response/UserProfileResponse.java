@@ -9,9 +9,8 @@ public record UserProfileResponse(
         String name,
         String emailId,
         LocalDate birthDate,
-        Role role
-
-        // String imageUrl
+        Role role,
+        String profileImageUrl
 ) {
 
     public static UserProfileResponse from(User user) {
@@ -20,8 +19,8 @@ public record UserProfileResponse(
                 user.getName(),
                 user.getEmailId(),
                 user.getBirthDate(),
-                user.getRole()
-                // user.profileImageUrl()
+                user.getRole(),
+                user.getProfileImageUrl()
         );
     }
 }
