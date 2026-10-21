@@ -27,7 +27,7 @@ public class User {
     @Column(name = "id", updatable = false, nullable = false, unique = true)
     private Long id;
 
-    @Column(name = "email_id", nullable = false, unique = true, updatable = false, length = 255)
+    @Column(name = "email_id", nullable = false, unique = true, length = 255)
     private String emailId;
 
     @Column(name = "name", nullable = false, length = 50)
@@ -61,6 +61,11 @@ public class User {
 
     public void changeName(String newName) {
         this.name = newName;
+    }
+
+    public void updateProfile(String name, LocalDate birthDate) {
+        this.name = name;
+        this.birthDate = birthDate;
     }
 
     public void delete() {
