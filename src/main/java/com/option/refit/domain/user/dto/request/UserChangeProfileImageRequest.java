@@ -1,5 +1,5 @@
 package com.option.refit.domain.user.dto.request;
 
-public class UserChangeProfileImageRequest {
-    String profileImageUrl;
-}
+public record UserChangeProfileImageRequest(
+        String profileImageUrl
+) {}
