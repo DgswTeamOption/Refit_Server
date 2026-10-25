@@ -1,4 +1,4 @@
-package com.option.refit.domain.file.controleer;
+package com.option.refit.domain.file.controller;
 
 import com.option.refit.domain.file.dto.FileUploadRequest;
 import com.option.refit.domain.file.dto.FileUploadResponse;
