@@ -1,9 +1,8 @@
-package com.option.refit.domain.file;
+package com.option.refit.domain.file.service;
 
 import com.option.refit.domain.file.dto.FileUploadResponse;
 import com.option.refit.domain.file.entity.FileEntity;
 import com.option.refit.domain.file.repository.FileRepository;
-import com.option.refit.domain.file.service.FileUploadService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
