@@ -27,7 +27,7 @@ public class FileEntity {
     @Column(nullable = false)
     private String originalFileName;
 
-    /*
+     /*
       서버에 저장되는 고유 파일명
       UUID를 사용해 같은 이름의 파일이 덮어써지는 것을 방지
      */
@@ -71,7 +71,6 @@ public class FileEntity {
     }
 
     // 업로드 파일 정보를 바탕으로 엔티티를 생성
-
     public static FileEntity create(
             String originalFileName,
             String storedFileName,
@@ -90,5 +89,9 @@ public class FileEntity {
 
     public String getImageUrl() {
         return imageUrl;
+    }
+
+    public String getStoredFileName() {
+        return storedFileName;
     }
 }
