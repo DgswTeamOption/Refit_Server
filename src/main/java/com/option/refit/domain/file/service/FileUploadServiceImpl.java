@@ -24,7 +24,9 @@ public class FileUploadServiceImpl implements FileUploadService {
 
     // 업로드 파일 저장 경로
     private final Path uploadDirectory =
-            Paths.get("uploads").toAbsolutePath().normalize();
+            Paths.get(System.getProperty("user.home"), "uploads")
+                    .toAbsolutePath()
+                    .normalize();
 
     // 이미지 업로드
     @Override
