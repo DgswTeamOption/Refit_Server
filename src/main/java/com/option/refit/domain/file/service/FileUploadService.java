@@ -1,12 +1,15 @@
 package com.option.refit.domain.file.service;
 
 import com.option.refit.domain.file.dto.FileUploadResponse;
+import com.option.refit.domain.user.entity.User;
 import org.springframework.web.multipart.MultipartFile;
 
+// 파일 업로드 및 삭제
 public interface FileUploadService {
 
-    FileUploadResponse uploadImage(MultipartFile file);
+    // 이미지 업로드
+    FileUploadResponse uploadImage(MultipartFile file, User user);
 
-    void deleteFile(Long fileId);
+    // 파일 삭제
+    void deleteFile(Long fileId, Long loginUserId);
 }
-

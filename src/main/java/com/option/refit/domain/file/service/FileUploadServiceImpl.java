@@ -3,185 +3,144 @@ package com.option.refit.domain.file.service;
 import com.option.refit.domain.file.dto.FileUploadResponse;
 import com.option.refit.domain.file.entity.FileEntity;
 import com.option.refit.domain.file.repository.FileRepository;
+import com.option.refit.domain.user.entity.User;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Locale;
-import java.util.Set;
 import java.util.UUID;
 
+// 파일 업로드 및 삭제 구현체
 @Service
+@RequiredArgsConstructor
 public class FileUploadServiceImpl implements FileUploadService {
-
-    private static final Set<String> ALLOWED_EXTENSIONS =
-            Set.of("jpg", "jpeg", "png");
-
-    private static final long MAX_IMAGE_SIZE = 10 * 1024 * 1024;
-
-    private static final Path UPLOAD_DIRECTORY =
-            Paths.get("uploads").toAbsolutePath().normalize();
 
     private final FileRepository fileRepository;
 
-    public FileUploadServiceImpl(FileRepository fileRepository) {
-        this.fileRepository = fileRepository;
-    }
+    // 업로드 파일 저장 경로
+    private final Path uploadDirectory =
+            Paths.get("uploads").toAbsolutePath().normalize();
 
     // 이미지 업로드
     @Override
-    public FileUploadResponse uploadImage(MultipartFile file) {
-        validate(file);
+    @Transactional
+    public FileUploadResponse uploadImage(MultipartFile file, User user) {
 
-        String extension =
-                extractExtension(file.getOriginalFilename());
+        // 파일이 비어 있는지 확인
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("업로드할 파일이 없습니다.");
+        }
 
-        String storedFileName =
-                UUID.randomUUID() + "." + extension;
+        // 이미지 파일인지 확인
+        String contentType = file.getContentType();
 
-        String imageUrl = "/uploads/" + storedFileName;
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new IllegalArgumentException("이미지 파일만 업로드할 수 있습니다.");
+        }
 
-        Path destination =
-                UPLOAD_DIRECTORY.resolve(storedFileName);
+        // 원본 파일명 확인
+        String originalFileName = file.getOriginalFilename();
 
-        try {
-            Files.createDirectories(UPLOAD_DIRECTORY);
+        if (originalFileName == null || originalFileName.isBlank()) {
+            originalFileName = "image";
+        }
 
-            try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, destination);
-            }
-        } catch (IOException e) {
-            throw new IllegalArgumentException(
-                    "이미지 저장에 실패했습니다.", e
+        // 파일 확장자 추출
+        String extension = "";
+
+        if (originalFileName.contains(".")) {
+            extension = originalFileName.substring(
+                    originalFileName.lastIndexOf(".")
             );
         }
 
+        // UUID를 이용해 저장 파일명 생성
+        String storedFileName = UUID.randomUUID() + extension;
+
+        Path targetPath = uploadDirectory
+                .resolve(storedFileName)
+                .normalize();
+
+        // 잘못된 파일 경로 방지
+        if (!targetPath.startsWith(uploadDirectory)) {
+            throw new IllegalArgumentException("잘못된 파일 경로입니다.");
+        }
+
         try {
-            FileEntity savedFile = fileRepository.save(
-                    FileEntity.create(
-                            file.getOriginalFilename(),
-                            storedFileName,
-                            imageUrl,
-                            file.getContentType(),
-                            file.getSize()
-                    )
+            // uploads 폴더가 없으면 생성
+            Files.createDirectories(uploadDirectory);
+
+            // 실제 파일 저장
+            Files.copy(file.getInputStream(), targetPath);
+
+            // 파일 접근 URL
+            String imageUrl = "/uploads/" + storedFileName;
+
+            // DB에 저장할 파일 정보 생성
+            FileEntity fileEntity = FileEntity.create(
+                    originalFileName,
+                    storedFileName,
+                    imageUrl,
+                    contentType,
+                    file.getSize(),
+                    user
             );
 
-            return new FileUploadResponse(savedFile.getImageUrl());
+            // 파일 정보 DB 저장
+            FileEntity savedFile = fileRepository.save(fileEntity);
 
-        } catch (RuntimeException e) {
-            // DB 저장 실패 시 실제 파일 정리
-            try {
-                Files.deleteIfExists(destination);
-            } catch (IOException cleanupException) {
-                e.addSuppressed(cleanupException);
-            }
+            // 업로드 결과 반환
+            return new FileUploadResponse(
+                    savedFile.getId(),
+                    savedFile.getImageUrl()
+            );
 
-            throw e;
+        } catch (IOException e) {
+            throw new IllegalStateException("파일 업로드에 실패했습니다.", e);
         }
     }
 
     // 파일 삭제
     @Override
-    public void deleteFile(Long fileId) {
+    @Transactional
+    public void deleteFile(Long fileId, Long loginUserId) {
 
-        // DB에서 파일 정보 조회
-        FileEntity fileEntity = fileRepository.findById(fileId)
+        // 파일 정보 조회
+        FileEntity file = fileRepository.findById(fileId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "파일을 찾을 수 없습니다."
-                        )
+                        new IllegalArgumentException("파일을 찾을 수 없습니다.")
                 );
+
+        // 본인이 업로드한 파일인지 확인
+        if (file.getUser().getId() == null
+                || !file.getUser().getId().equals(loginUserId)) {
+            throw new IllegalArgumentException("파일을 삭제할 권한이 없습니다.");
+        }
 
         // 실제 파일 경로 생성
-        Path filePath = UPLOAD_DIRECTORY
-                .resolve(fileEntity.getStoredFileName())
+        Path filePath = uploadDirectory
+                .resolve(file.getStoredFileName())
                 .normalize();
 
-        // 업로드 폴더 외부의 파일 삭제 방지
-        if (!filePath.startsWith(UPLOAD_DIRECTORY)
-                || filePath.equals(UPLOAD_DIRECTORY)) {
-            throw new IllegalArgumentException(
-                    "잘못된 파일 경로입니다."
-            );
+        // 잘못된 파일 경로 방지
+        if (!filePath.startsWith(uploadDirectory)) {
+            throw new IllegalArgumentException("잘못된 파일 경로입니다.");
         }
 
-        // 실제 파일 삭제
         try {
-            Files.delete(filePath);
+            // 서버에 저장된 실제 파일 삭제
+            Files.deleteIfExists(filePath);
+
+            // DB에 저장된 파일 정보 삭제
+            fileRepository.delete(file);
+
         } catch (IOException e) {
-            throw new IllegalArgumentException(
-                    "파일 삭제에 실패했습니다.", e
-            );
+            throw new IllegalStateException("파일 삭제에 실패했습니다.", e);
         }
-
-        // DB 정보 삭제
-        fileRepository.delete(fileEntity);
-    }
-
-    // 업로드 파일 검증
-    private void validate(MultipartFile file) {
-        if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "업로드할 이미지 파일을 선택해주세요."
-            );
-        }
-
-        if (file.getSize() > MAX_IMAGE_SIZE) {
-            throw new IllegalArgumentException(
-                    "이미지 파일은 10MB 이하만 업로드할 수 있습니다."
-            );
-        }
-
-        String extension =
-                extractExtension(file.getOriginalFilename());
-
-        if (!ALLOWED_EXTENSIONS.contains(extension)) {
-            throw new IllegalArgumentException(
-                    "jpg, jpeg, png 형식의 이미지만 업로드할 수 있습니다."
-            );
-        }
-
-        try (InputStream inputStream = file.getInputStream()) {
-            BufferedImage image = ImageIO.read(inputStream);
-
-            if (image == null) {
-                throw new IllegalArgumentException(
-                        "실제 이미지 파일만 업로드할 수 있습니다."
-                );
-            }
-        } catch (IOException e) {
-            throw new IllegalArgumentException(
-                    "이미지 파일을 읽을 수 없습니다.", e
-            );
-        }
-    }
-
-    // 파일 확장자 추출
-    private String extractExtension(String originalFileName) {
-        if (originalFileName == null) {
-            throw new IllegalArgumentException(
-                    "파일 이름이 없습니다."
-            );
-        }
-
-        int lastDotIndex = originalFileName.lastIndexOf('.');
-
-        if (lastDotIndex <= 0
-                || lastDotIndex == originalFileName.length() - 1) {
-            throw new IllegalArgumentException(
-                    "파일 확장자가 없습니다."
-            );
-        }
-
-        return originalFileName
-                .substring(lastDotIndex + 1)
-                .toLowerCase(Locale.ROOT);
     }
 }
