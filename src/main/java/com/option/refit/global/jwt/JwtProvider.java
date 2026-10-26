@@ -51,7 +51,7 @@ public class JwtProvider {
         return build(userId, null, refreshExpirationMs);
     }
 
-    /** 토큰 검증 + claims 반환. 실패 원인별로 기존 jwtError 예외를 던진다. */
+    // 토큰 검증 + claims 반환. 실패 원인별로 기존 jwtError 예외를 던짐
     public Claims parseClaims(String token) {
         if (token == null || token.isBlank()) {
             throw new MissingTokenException();
@@ -75,7 +75,7 @@ public class JwtProvider {
         return extractRole(parseClaims(token));
     }
 
-    /** Access Token으로 Authentication 생성. Refresh Token(role 없음)은 MalformedTokenException. */
+    // Access Token으로 Authentication 생성 Refresh Token(role 없음)은 MalformedTokenException
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
         JwtPrincipal principal = new JwtPrincipal(extractUserId(claims), extractRole(claims));
