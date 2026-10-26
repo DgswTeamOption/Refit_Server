@@ -9,7 +9,4 @@ public interface FileUploadService {
 
     // 이미지 업로드
     FileUploadResponse uploadImage(MultipartFile file, User user);
-
-    // 파일 삭제
-    void deleteFile(Long fileId, Long loginUserId);
 }
