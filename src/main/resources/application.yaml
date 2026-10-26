@@ -12,13 +12,18 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
   mail:
-    host: smtp.gmail.com
-    port: 587
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
     properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-expiration-ms: 1800000      # 30분
+  refresh-expiration-ms: 1209600000  # 14일
+  email-secret: ${JWT_EMAIL_SECRET}
+  email-code-expiration-ms: 300000
+  email-verified-expiration-ms: 1800000
