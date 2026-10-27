@@ -1,5 +1,6 @@
 package com.option.refit.global.error;
 
+import com.option.refit.global.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -7,35 +8,34 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-@RestControllerAdvice // 전역적으로 예외를 처리하기 위해 사용
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(CustomException.class) // Controller에 발생하는 에러 메서드로 처리
-    public ResponseEntity<ErrorResponse> handlerCustomException(CustomException e) {
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ApiResponse<Void>> handlerCustomException(CustomException e) {
         return ResponseEntity
                 .status(e.getStatus())
-                .body(ErrorResponse.from(e));
+                .body(ApiResponse.fail(ErrorResponse.from(e)));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
+    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.of(HttpStatus.BAD_REQUEST, "요청하신 응답을 읽을 수 없습니다"));
+                .body(ApiResponse.fail(ErrorResponse.of(HttpStatus.BAD_REQUEST, "요청하신 응답을 읽을 수 없습니다")));
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNoHandlerFound(NoHandlerFoundException e) {
+    public ResponseEntity<ApiResponse<Void>> handleNoHandlerFound(NoHandlerFoundException e) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(ErrorResponse.of(HttpStatus.NOT_FOUND, "요청하신 경로를 찾을 수 없습니다"));
+                .body(ApiResponse.fail(ErrorResponse.of(HttpStatus.NOT_FOUND, "요청하신 경로를 찾을 수 없습니다")));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception e) {
+    public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, "오류가 발생했습니다"));
+                .body(ApiResponse.fail(ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, "오류가 발생했습니다")));
     }
-
 }
