@@ -1,4 +1,4 @@
-package com.option.refit.global.common;
+package com.option.refit.global.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
