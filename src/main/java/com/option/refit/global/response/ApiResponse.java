@@ -1,4 +1,4 @@
-package com.option.refit.global.common.response;
+package com.option.refit.global.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.option.refit.global.error.ErrorCode;
