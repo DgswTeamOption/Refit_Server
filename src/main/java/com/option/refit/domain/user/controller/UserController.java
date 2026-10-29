@@ -9,7 +9,7 @@ import com.option.refit.domain.user.service.UserDeleteService;
 import com.option.refit.domain.user.service.UserGetProfileService;
 import com.option.refit.domain.user.service.UserUpdateProfileService;
 import com.option.refit.global.error.userError.exception.UserAccessDeniedException;
-import com.option.refit.global.response.ApiResponse;
+import com.option.refit.global.common.ApiResponse;
 import com.option.refit.global.security.MemberDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
