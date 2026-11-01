@@ -12,6 +12,8 @@ import java.util.UUID;
 
 public class ClassRoomEntity {
 
+    // 수업 자체의 정보를 저장
+
     @Entity
     @Table(name = "classrooms")
     @Getter
