@@ -1,5 +1,6 @@
 package com.option.refit.calendar.entity;
 
+import com.option.refit.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLRestriction("deleted_at IS NULL")
 @SQLDelete(sql = "UPDATE schedules SET deleted_at = NOW() WHERE id = ?")
-public class ScheduleEntity extends Base {
+public class ScheduleEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,6 +34,9 @@ public class ScheduleEntity extends Base {
 
     @Column(name = "schedule_time", nullable = false)
     private LocalDateTime scheduleTime;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @Builder
     public ScheduleEntity(Long classId, String className, String description, LocalDateTime scheduleTime) {
