@@ -1,4 +1,4 @@
-package com.option.refit.domain.classroom;
+package com.option.refit.domain.classroom.entity;
 
 import com.option.refit.domain.user.entity.User;
 import jakarta.persistence.*;
