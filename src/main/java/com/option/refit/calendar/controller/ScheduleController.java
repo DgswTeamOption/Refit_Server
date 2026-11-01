@@ -1,5 +1,5 @@
 package com.option.refit.calendar.controller;
 
-public class CalendarController {
+public class ScheduleController {
 
 }

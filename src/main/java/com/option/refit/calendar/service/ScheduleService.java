@@ -1,5 +1,5 @@
 package com.option.refit.calendar.service;
 
-public interface CalendarService {
+public interface ScheduleService {
 
 }

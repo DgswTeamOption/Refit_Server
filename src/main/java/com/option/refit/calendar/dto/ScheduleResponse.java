@@ -1,5 +1,5 @@
 package com.option.refit.calendar.dto;
 
-public class CalendarRequest {
+public class ScheduleResponse {
 
 }
