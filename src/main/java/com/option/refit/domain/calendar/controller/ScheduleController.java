@@ -1,8 +1,8 @@
-package com.option.refit.calendar.controller;
+package com.option.refit.domain.calendar.controller;
 
-import com.option.refit.calendar.dto.ScheduleRequest;
-import com.option.refit.calendar.dto.ScheduleResponse;
-import com.option.refit.calendar.service.ScheduleService;
+import com.option.refit.domain.calendar.dto.ScheduleRequest;
+import com.option.refit.domain.calendar.dto.ScheduleResponse;
+import com.option.refit.domain.calendar.service.ScheduleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

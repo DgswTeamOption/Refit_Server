@@ -1,10 +1,10 @@
-package com.option.refit.calendar.service.impl;
+package com.option.refit.domain.calendar.service.impl;
 
-import com.option.refit.calendar.dto.ScheduleRequest;
-import com.option.refit.calendar.dto.ScheduleResponse;
-import com.option.refit.calendar.entity.ScheduleEntity;
-import com.option.refit.calendar.repository.ScheduleRepository;
-import com.option.refit.calendar.service.ScheduleService;
+import com.option.refit.domain.calendar.dto.ScheduleRequest;
+import com.option.refit.domain.calendar.dto.ScheduleResponse;
+import com.option.refit.domain.calendar.entity.ScheduleEntity;
+import com.option.refit.domain.calendar.repository.ScheduleRepository;
+import com.option.refit.domain.calendar.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

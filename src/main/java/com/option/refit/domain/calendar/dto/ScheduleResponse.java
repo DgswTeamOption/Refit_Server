@@ -1,7 +1,7 @@
-package com.option.refit.calendar.dto;
+package com.option.refit.domain.calendar.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.option.refit.calendar.entity.ScheduleEntity;
+import com.option.refit.domain.calendar.entity.ScheduleEntity;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

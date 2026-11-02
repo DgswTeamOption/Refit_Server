@@ -1,4 +1,4 @@
-package com.option.refit.calendar.dto;
+package com.option.refit.domain.calendar.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
