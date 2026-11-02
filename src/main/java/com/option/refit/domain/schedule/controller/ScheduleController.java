@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/classes/{classId}")
+@RequestMapping("/api/class")
 @RequiredArgsConstructor
 public class ScheduleController {
 
@@ -24,12 +24,12 @@ public class ScheduleController {
     private final ScheduleUpdateService scheduleUpdateService;
     private final ScheduleDeleteService scheduleDeleteService;
 
-    @GetMapping("/schedule")
+    @GetMapping("/schedule/{classId}")
     public ResponseEntity<List<ScheduleResponse>> getSchedules(@PathVariable Long classId) {
         return ResponseEntity.ok(scheduleGetService.getSchedulesByClass(classId));
     }
 
-    @GetMapping("/calendar")
+    @GetMapping("/calendar/{classId}")
     public ResponseEntity<List<ScheduleResponse>> getMonthlyCalendar(
             @PathVariable Long classId,
             @RequestParam int year,
@@ -37,7 +37,7 @@ public class ScheduleController {
         return ResponseEntity.ok(scheduleGetService.getMonthlyCalendar(classId, year, month));
     }
 
-    @PostMapping("/schedule")
+    @PostMapping("/schedule/{classId}")
     public ResponseEntity<Long> createSchedule(
             @PathVariable Long classId,
             @Valid @RequestBody ScheduleRequest.CreateOrUpdate request) {
@@ -45,7 +45,7 @@ public class ScheduleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(scheduleId);
     }
 
-    @PatchMapping("/schedule/{scheduleId}")
+    @PatchMapping("/schedule/{classId}/{scheduleId}")
     public ResponseEntity<Void> updateSchedule(
             @PathVariable Long classId,
             @PathVariable Long scheduleId,
@@ -54,7 +54,7 @@ public class ScheduleController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/schedule/{scheduleId}")
+    @DeleteMapping("/schedule/{classId}/{scheduleId}")
     public ResponseEntity<Void> deleteSchedule(
             @PathVariable Long classId,
             @PathVariable Long scheduleId) {
