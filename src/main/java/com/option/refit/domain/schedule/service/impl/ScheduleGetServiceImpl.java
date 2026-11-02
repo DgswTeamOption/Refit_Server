@@ -3,6 +3,7 @@ package com.option.refit.domain.schedule.service.impl;
 import com.option.refit.domain.schedule.dto.ScheduleResponse;
 import com.option.refit.domain.schedule.repository.ScheduleRepository;
 import com.option.refit.domain.schedule.service.ScheduleGetService;
+import com.option.refit.global.error.calendarError.exception.InvalidDateFormatException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,10 @@ public class ScheduleGetServiceImpl implements ScheduleGetService {
 
     @Override
     public List<ScheduleResponse> getMonthlyCalendar(Long classId, int year, int month) {
+        if (year < 1 || year > 9999 || month < 1 || month > 12) {
+            throw new InvalidDateFormatException();
+        }
+
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDateTime start = yearMonth.atDay(1).atStartOfDay();
         LocalDateTime end = yearMonth.atEndOfMonth().atTime(LocalTime.MAX);
