@@ -1,8 +1,9 @@
-package com.option.refit.domain.classroom;
+package com.option.refit.domain.classroom.dto.requset;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+//수업 생성 요청
 
 public record ClassRoomCreateRequest(
 
