@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -15,12 +14,6 @@ import java.time.LocalDateTime;
 public class ScheduleScheduler {
 
     private final ScheduleRepository scheduleRepository;
-
-    @Scheduled(cron = "0 0 0 * * *")
-    @Transactional
-    public void autoProcessDailySchedules() {
-        log.info("[스케줄러 실행] 자정 일정 데이터 정돈 작업 실행 시각: {}", LocalDateTime.now());
-    }
 
     @Scheduled(cron = "0 */10 * * * *")
 
