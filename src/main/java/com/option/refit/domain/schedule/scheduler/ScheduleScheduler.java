@@ -1,6 +1,6 @@
-package com.option.refit.domain.calendar.scheduler;
+package com.option.refit.domain.schedule.scheduler;
 
-import com.option.refit.domain.calendar.repository.ScheduleRepository;
+import com.option.refit.domain.schedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

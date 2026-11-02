@@ -1,7 +1,7 @@
-package com.option.refit.domain.calendar.service;
+package com.option.refit.domain.schedule.service;
 
-import com.option.refit.domain.calendar.dto.ScheduleRequest;
-import com.option.refit.domain.calendar.dto.ScheduleResponse;
+import com.option.refit.domain.schedule.dto.ScheduleRequest;
+import com.option.refit.domain.schedule.dto.ScheduleResponse;
 
 import java.util.List;
 

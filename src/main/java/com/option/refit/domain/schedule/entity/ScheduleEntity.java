@@ -1,4 +1,4 @@
-package com.option.refit.domain.calendar.entity;
+package com.option.refit.domain.schedule.entity;
 
 import com.option.refit.global.entity.BaseEntity;
 import jakarta.persistence.*;

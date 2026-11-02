@@ -1,7 +1,7 @@
-package com.option.refit.domain.calendar.dto;
+package com.option.refit.domain.schedule.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.option.refit.domain.calendar.entity.ScheduleEntity;
+import com.option.refit.domain.schedule.entity.ScheduleEntity;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -17,7 +17,7 @@ public class ScheduleResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private final LocalDateTime scheduleTime;
 
-    public ScheduleResponse(ScheduleEntity entity){
+    public ScheduleResponse(ScheduleEntity entity) {
         this.scheduleId = entity.getId();
         this.classId = entity.getClassId();
         this.className = entity.getClassName();

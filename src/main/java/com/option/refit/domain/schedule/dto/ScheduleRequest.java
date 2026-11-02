@@ -1,4 +1,4 @@
-package com.option.refit.domain.calendar.dto;
+package com.option.refit.domain.schedule.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
@@ -12,8 +12,7 @@ public class ScheduleRequest {
 
     @Getter
     @NoArgsConstructor
-
-    public static class CreateOrUpdate{
+    public static class CreateOrUpdate {
         @NotBlank(message = "수업/일정 명은 필수입니다.")
         private String className;
 

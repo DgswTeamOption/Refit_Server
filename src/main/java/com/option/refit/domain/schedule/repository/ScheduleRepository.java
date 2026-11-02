@@ -1,6 +1,6 @@
-package com.option.refit.domain.calendar.repository;
+package com.option.refit.domain.schedule.repository;
 
-import com.option.refit.domain.calendar.entity.ScheduleEntity;
+import com.option.refit.domain.schedule.entity.ScheduleEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
