@@ -16,7 +16,7 @@ public class ScheduleDeleteServiceImpl implements ScheduleDeleteService {
     @Override
     @Transactional
     public void deleteSchedule(Long classId, Long scheduleId) {
-        ScheduleEntity schedule = scheduleRepository.findById(scheduleId)
+        ScheduleEntity schedule = scheduleRepository.findByIdAndClassId(scheduleId, classId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 일정입니다. ID: " + scheduleId));
 
         scheduleRepository.delete(schedule);

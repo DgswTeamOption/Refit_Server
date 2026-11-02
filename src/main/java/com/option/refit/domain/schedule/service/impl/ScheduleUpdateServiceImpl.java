@@ -17,7 +17,7 @@ public class ScheduleUpdateServiceImpl implements ScheduleUpdateService {
     @Override
     @Transactional
     public void updateSchedule(Long classId, Long scheduleId, ScheduleRequest.CreateOrUpdate request) {
-        ScheduleEntity schedule = scheduleRepository.findById(scheduleId)
+        ScheduleEntity schedule = scheduleRepository.findByIdAndClassId(scheduleId, classId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 일정입니다. ID: " + scheduleId));
 
         schedule.updateSchedule(request.getClassName(), request.getDescription(), request.getScheduleTime());
