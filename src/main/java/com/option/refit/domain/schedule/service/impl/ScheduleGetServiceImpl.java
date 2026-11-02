@@ -3,7 +3,7 @@ package com.option.refit.domain.schedule.service.impl;
 import com.option.refit.domain.schedule.dto.ScheduleResponse;
 import com.option.refit.domain.schedule.repository.ScheduleRepository;
 import com.option.refit.domain.schedule.service.ScheduleGetService;
-import com.option.refit.global.error.calendarError.exception.InvalidDateFormatException;
+import com.option.refit.global.error.scheduleError.exception.InvalidDateFormatException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
