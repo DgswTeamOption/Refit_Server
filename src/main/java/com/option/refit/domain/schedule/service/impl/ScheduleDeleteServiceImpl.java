@@ -2,6 +2,7 @@ package com.option.refit.domain.schedule.service.impl;
 
 import com.option.refit.domain.schedule.entity.ScheduleEntity;
 import com.option.refit.domain.schedule.repository.ScheduleRepository;
+import com.option.refit.global.error.calendarError.exception.ScheduleNotFoundException;
 import com.option.refit.domain.schedule.service.ScheduleDeleteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ public class ScheduleDeleteServiceImpl implements ScheduleDeleteService {
     @Transactional
     public void deleteSchedule(Long classId, Long scheduleId) {
         ScheduleEntity schedule = scheduleRepository.findByIdAndClassId(scheduleId, classId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 일정입니다. ID: " + scheduleId));
+                .orElseThrow(() -> new ScheduleNotFoundException());
 
         scheduleRepository.delete(schedule);
     }

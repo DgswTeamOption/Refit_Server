@@ -3,6 +3,7 @@ package com.option.refit.domain.schedule.service.impl;
 import com.option.refit.domain.schedule.dto.ScheduleRequest;
 import com.option.refit.domain.schedule.entity.ScheduleEntity;
 import com.option.refit.domain.schedule.repository.ScheduleRepository;
+import com.option.refit.global.error.calendarError.exception.ScheduleNotFoundException;
 import com.option.refit.domain.schedule.service.ScheduleUpdateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ public class ScheduleUpdateServiceImpl implements ScheduleUpdateService {
     @Transactional
     public void updateSchedule(Long classId, Long scheduleId, ScheduleRequest.CreateOrUpdate request) {
         ScheduleEntity schedule = scheduleRepository.findByIdAndClassId(scheduleId, classId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 일정입니다. ID: " + scheduleId));
+                .orElseThrow(() -> new ScheduleNotFoundException());
 
         schedule.updateSchedule(request.getClassName(), request.getDescription(), request.getScheduleTime());
     }
