@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 //수업 참여 요청
-
 public record ClassRoomJoinRequest(
 
         @NotBlank(message = "수업 코드를 입력해주세요.")
