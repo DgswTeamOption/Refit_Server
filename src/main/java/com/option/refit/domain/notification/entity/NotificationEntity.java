@@ -1,6 +1,6 @@
 package com.option.refit.domain.notification.entity;
 
-
+import com.option.refit.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @SQLRestriction("deleted_at IS NULL")
 @SQLDelete(sql = "UPDATE notification SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 
-public class NotificationEntity {
+public class NotificationEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
