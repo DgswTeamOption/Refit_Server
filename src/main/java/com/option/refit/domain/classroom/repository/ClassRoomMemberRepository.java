@@ -6,21 +6,21 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public class ClassRoomMemberRepository {
+public interface ClassRoomMemberRepository
+        extends JpaRepository<ClassRoomMemberEntity, Long> {
 
-    public interface ClassroomMemberRepository
-            extends JpaRepository<ClassRoomMemberEntity, Long> {
+    Optional<ClassRoomMemberEntity> findByClassroom_IdAndUser_Id(
+            Long classroomId,
+            Long userId
+    );
 
-        Optional<ClassRoomMemberEntity>
-        findByClassroom_IdAndUser_Id(Long classroomId, Long userId);
+    List<ClassRoomMemberEntity>
+    findAllByUser_IdAndLeftAtIsNullOrderByJoinedAtDesc(Long userId);
 
-        List<ClassRoomMemberEntity>
-        findAllByUser_IdAndLeftAtIsNullOrderByJoinedAtDesc(Long userId);
+    boolean existsByClassroom_IdAndUser_IdAndLeftAtIsNull(
+            Long classroomId,
+            Long userId
+    );
 
-        boolean existsByClassroom_IdAndUser_IdAndLeftAtIsNull(
-                Long classroomId,
-                Long userId
-        );
-    }
-
+    long countByClassroom_IdAndLeftAtIsNull(Long classroomId);
 }

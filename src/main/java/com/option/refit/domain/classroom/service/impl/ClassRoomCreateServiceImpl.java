@@ -1,9 +1,10 @@
-package com.option.refit.domain.classroom.service;
+package com.option.refit.domain.classroom.service.impl;
 
 import com.option.refit.domain.classroom.dto.request.ClassRoomCreateRequest;
 import com.option.refit.domain.classroom.dto.response.ClassRoomResponse;
 import com.option.refit.domain.classroom.entity.ClassRoomEntity;
 import com.option.refit.domain.classroom.repository.ClassRoomRepository;
+import com.option.refit.domain.classroom.service.ClassRoomCreateService;
 import com.option.refit.domain.user.entity.Role;
 import com.option.refit.domain.user.entity.User;
 import com.option.refit.global.error.classError.exception.ClassPermissionDeniedException;
