@@ -27,3 +27,7 @@ jwt:
   email-secret: ${JWT_EMAIL_SECRET}
   email-code-expiration-ms: 300000
   email-verified-expiration-ms: 1800000
+
+# 쉼표로 여러 개 지정. 배포 시 CORS_ALLOWED_ORIGINS 환경변수로 덮어씀
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:8081,http://localhost:19006}
