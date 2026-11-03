@@ -2,6 +2,7 @@ package com.option.refit.domain.file.controller;
 
 import com.option.refit.domain.file.dto.FileUploadRequest;
 import com.option.refit.domain.file.dto.FileUploadResponse;
+import com.option.refit.domain.file.service.FileDeleteService;
 import com.option.refit.domain.file.service.FileUploadService;
 import com.option.refit.global.security.MemberDetails;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class FileController {
 
     private final FileUploadService fileUploadService;
+    private final FileDeleteService fileDeleteService;
 
     // 이미지 업로드
     @PostMapping(
@@ -46,7 +48,7 @@ public class FileController {
             @PathVariable Long fileId,
             @AuthenticationPrincipal MemberDetails memberDetails
     ) {
-        fileUploadService.deleteFile(
+        fileDeleteService.deleteFile(
                 fileId,
                 memberDetails.getUser().getId()
         );
