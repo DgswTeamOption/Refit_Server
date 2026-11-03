@@ -1,4 +1,4 @@
-package com.option.refit.domain.classroom.dto.requset;
+package com.option.refit.domain.classroom.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
