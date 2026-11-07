@@ -25,6 +25,7 @@ public class SecurityConfig {
     // 인증 없이 접근 가능한 공개 경로 (회원가입, 로그인, 이메일 인증, 아이디 중복확인 등)
     private static final String[] PUBLIC_URLS = {
             "/api/auth/**",
+            "/api/user/email/**",
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/v3/api-docs/**"
