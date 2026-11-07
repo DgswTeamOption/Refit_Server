@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users")
+@RequestMapping("/api")
 public class UserController {
 
     private final UserChangeProfileImageService userChangeProfileImageService;
@@ -26,7 +26,7 @@ public class UserController {
     private final UserGetProfileService userGetProfileService;
     private final UserUpdateProfileService userUpdateProfileService;
 
-    @GetMapping("/{userId}")
+    @GetMapping("/users/{userId}")
     public ApiResponse<UserProfileResponse> getProfile(
             @AuthenticationPrincipal MemberDetails memberDetails,
             @PathVariable Long userId
@@ -43,7 +43,7 @@ public class UserController {
         return ApiResponse.ok(response);
     }
 
-    @PatchMapping("/me/username")
+    @PatchMapping("/setting/username")
     public ApiResponse<UserProfileResponse> updateProfile(
             @AuthenticationPrincipal MemberDetails memberDetails,
             @Valid @RequestBody UserUpdateProfileRequest request
@@ -56,7 +56,7 @@ public class UserController {
         return ApiResponse.ok(response);
     }
 
-    @PatchMapping("/me/profile-image")
+    @PatchMapping("/setting/profile-image")
     public ApiResponse<UserProfileResponse> changeProfileImage(
             @AuthenticationPrincipal MemberDetails memberDetails,
             @Valid @RequestBody UserChangeProfileImageRequest request
@@ -69,10 +69,17 @@ public class UserController {
         return ApiResponse.ok(response);
     }
 
-    @DeleteMapping("/me")
-    public ApiResponse<Void> deleteAccount(@AuthenticationPrincipal MemberDetails memberDetails) {
+    @DeleteMapping("/users/{userId}")
+    public ApiResponse<Void> deleteAccount(
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            @PathVariable Long userId
+    ) {
 
         User user = memberDetails.getUser();
+
+        if (!user.getId().equals(userId)) {
+            throw new UserAccessDeniedException();
+        }
 
         userDeleteService.deleteUser(user);
 
