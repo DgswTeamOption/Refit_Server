@@ -17,8 +17,8 @@ public class UserUpdateProfileServiceImpl implements UserUpdateProfileService {
 
     @Override
     @Transactional
-    public UserProfileResponse updateProfile(UserUpdateProfileRequest request, User user) {
-        User target = userRepository.findByIdAndDeletedAtIsNull(user.getId())
+    public UserProfileResponse updateProfile(UserUpdateProfileRequest request, Long userId) {
+        User target = userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(UserNotFoundException::new);
         target.updateProfile(request.name());
         return UserProfileResponse.from(target);
