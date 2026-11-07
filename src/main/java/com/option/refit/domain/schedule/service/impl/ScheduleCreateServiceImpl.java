@@ -4,6 +4,7 @@ import com.option.refit.domain.schedule.dto.ScheduleRequest;
 import com.option.refit.domain.schedule.entity.ScheduleEntity;
 import com.option.refit.domain.schedule.repository.ScheduleRepository;
 import com.option.refit.domain.schedule.service.ScheduleCreateService;
+import com.option.refit.global.error.scheduleError.exception.InvalidDateFormatException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,12 +17,16 @@ public class ScheduleCreateServiceImpl implements ScheduleCreateService {
 
     @Override
     @Transactional
-    public Long createSchedule(Long classId, ScheduleRequest.CreateOrUpdate request) {
+    public Long createSchedule(Long classId, ScheduleRequest.Create request) {
+        if (!request.getEndTime().isAfter(request.getStartTime())) {
+            throw new InvalidDateFormatException();
+        }
+
         ScheduleEntity schedule = ScheduleEntity.builder()
                 .classId(classId)
-                .className(request.getClassName())
-                .description(request.getDescription())
-                .scheduleTime(request.getScheduleTime())
+                .studentId(request.getStudentId())
+                .startTime(request.getStartTime())
+                .endTime(request.getEndTime())
                 .build();
 
         return scheduleRepository.save(schedule).getId();
