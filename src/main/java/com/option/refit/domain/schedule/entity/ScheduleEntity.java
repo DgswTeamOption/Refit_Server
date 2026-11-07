@@ -26,29 +26,28 @@ public class ScheduleEntity extends BaseEntity {
     @Column(name = "class_id", nullable = false)
     private Long classId;
 
-    @Column(name = "class_name", nullable = false, length = 255)
-    private String className;
+    @Column(name = "student_id", nullable = false)
+    private Long studentId;
 
-    @Column(name = "description", columnDefinition = "TEXT")
-    private String description;
+    @Column(name = "start_time", nullable = false)
+    private LocalDateTime startTime;
 
-    @Column(name = "schedule_time", nullable = false)
-    private LocalDateTime scheduleTime;
+    @Column(name = "end_time", nullable = false)
+    private LocalDateTime endTime;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
     @Builder
-    public ScheduleEntity(Long classId, String className, String description, LocalDateTime scheduleTime) {
+    public ScheduleEntity(Long classId, Long studentId, LocalDateTime startTime, LocalDateTime endTime) {
         this.classId = classId;
-        this.className = className;
-        this.description = description;
-        this.scheduleTime = scheduleTime;
+        this.studentId = studentId;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 
-    public void updateSchedule(String className, String description, LocalDateTime scheduleTime) {
-        this.className = className;
-        this.description = description;
-        this.scheduleTime = scheduleTime;
+    public void updateTime(LocalDateTime startTime, LocalDateTime endTime) {
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 }

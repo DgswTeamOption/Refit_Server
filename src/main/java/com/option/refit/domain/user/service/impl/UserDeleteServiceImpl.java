@@ -15,8 +15,8 @@ public class UserDeleteServiceImpl implements UserDeleteService {
 
     @Override
     @Transactional
-    public void deleteUser(User user) {
-        User target = userRepository.findByIdAndDeletedAtIsNull(user.getId())
+    public void deleteUser(Long userId) {
+        User target = userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(UserNotFoundException::new);
         target.delete();
     }

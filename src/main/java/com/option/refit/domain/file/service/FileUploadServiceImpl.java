@@ -4,6 +4,8 @@ import com.option.refit.domain.file.dto.FileUploadResponse;
 import com.option.refit.domain.file.entity.FileEntity;
 import com.option.refit.domain.file.repository.FileRepository;
 import com.option.refit.domain.user.entity.User;
+import com.option.refit.domain.user.repository.UserRepository;
+import com.option.refit.global.error.userError.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ import java.util.UUID;
 public class FileUploadServiceImpl implements FileUploadService {
 
     private final FileRepository fileRepository;
+    private final UserRepository userRepository;
 
     // 사용자 홈 디렉터리의 uploads 폴더에 파일 저장
     private final Path uploadDirectory = Paths.get(
@@ -28,8 +31,11 @@ public class FileUploadServiceImpl implements FileUploadService {
     // 이미지 업로드
     @Override
     @Transactional
-    public FileUploadResponse uploadImage(MultipartFile file, User user) {
+    public FileUploadResponse uploadImage(MultipartFile file, Long userId) {
         validateImage(file);
+
+        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+                .orElseThrow(UserNotFoundException::new);
 
         String originalFileName = getOriginalFileName(file);
         String extension = extractExtension(originalFileName);

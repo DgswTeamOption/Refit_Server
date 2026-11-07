@@ -16,8 +16,8 @@ public class UserGetProfileServiceImpl implements UserGetProfileService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserProfileResponse getUserProfile(User user) {
-        User target = userRepository.findByIdAndDeletedAtIsNull(user.getId())
+    public UserProfileResponse getUserProfile(Long userId) {
+        User target = userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(UserNotFoundException::new);
         return UserProfileResponse.from(target);
     }

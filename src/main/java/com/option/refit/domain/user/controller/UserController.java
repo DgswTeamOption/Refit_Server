@@ -3,14 +3,13 @@ package com.option.refit.domain.user.controller;
 import com.option.refit.domain.user.dto.request.UserChangeProfileImageRequest;
 import com.option.refit.domain.user.dto.request.UserUpdateProfileRequest;
 import com.option.refit.domain.user.dto.response.UserProfileResponse;
-import com.option.refit.domain.user.entity.User;
 import com.option.refit.domain.user.service.UserChangeProfileImageService;
 import com.option.refit.domain.user.service.UserDeleteService;
 import com.option.refit.domain.user.service.UserGetProfileService;
 import com.option.refit.domain.user.service.UserUpdateProfileService;
 import com.option.refit.global.error.userError.exception.UserAccessDeniedException;
 import com.option.refit.global.common.ApiResponse;
-import com.option.refit.global.security.MemberDetails;
+import com.option.refit.global.jwt.JwtPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users")
+@RequestMapping("/api")
 public class UserController {
 
     private final UserChangeProfileImageService userChangeProfileImageService;
@@ -26,55 +25,54 @@ public class UserController {
     private final UserGetProfileService userGetProfileService;
     private final UserUpdateProfileService userUpdateProfileService;
 
-    @GetMapping("/{userId}")
+    @GetMapping("/users/{userId}")
     public ApiResponse<UserProfileResponse> getProfile(
-            @AuthenticationPrincipal MemberDetails memberDetails,
+            @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable Long userId
     ) {
 
-        User user = memberDetails.getUser();
-
-        if (!user.getId().equals(userId)) {
+        if (!principal.userId().equals(userId)) {
             throw new UserAccessDeniedException();
         }
 
-        UserProfileResponse response = userGetProfileService.getUserProfile(user);
+        UserProfileResponse response = userGetProfileService.getUserProfile(principal.userId());
 
         return ApiResponse.ok(response);
     }
 
-    @PatchMapping("/me/username")
+    @PatchMapping("/setting/username")
     public ApiResponse<UserProfileResponse> updateProfile(
-            @AuthenticationPrincipal MemberDetails memberDetails,
+            @AuthenticationPrincipal JwtPrincipal principal,
             @Valid @RequestBody UserUpdateProfileRequest request
     ) {
 
-        User user = memberDetails.getUser();
-
-        UserProfileResponse response = userUpdateProfileService.updateProfile(request, user);
+        UserProfileResponse response = userUpdateProfileService.updateProfile(request, principal.userId());
 
         return ApiResponse.ok(response);
     }
 
-    @PatchMapping("/me/profile-image")
+    @PatchMapping("/setting/profile-image")
     public ApiResponse<UserProfileResponse> changeProfileImage(
-            @AuthenticationPrincipal MemberDetails memberDetails,
+            @AuthenticationPrincipal JwtPrincipal principal,
             @Valid @RequestBody UserChangeProfileImageRequest request
     ) {
 
-        User user = memberDetails.getUser();
-
-        UserProfileResponse response = userChangeProfileImageService.changeProfileImage(request, user.getId());
+        UserProfileResponse response = userChangeProfileImageService.changeProfileImage(request, principal.userId());
 
         return ApiResponse.ok(response);
     }
 
-    @DeleteMapping("/me")
-    public ApiResponse<Void> deleteAccount(@AuthenticationPrincipal MemberDetails memberDetails) {
+    @DeleteMapping("/users/{userId}")
+    public ApiResponse<Void> deleteAccount(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable Long userId
+    ) {
 
-        User user = memberDetails.getUser();
+        if (!principal.userId().equals(userId)) {
+            throw new UserAccessDeniedException();
+        }
 
-        userDeleteService.deleteUser(user);
+        userDeleteService.deleteUser(principal.userId());
 
         return ApiResponse.ok();
     }
