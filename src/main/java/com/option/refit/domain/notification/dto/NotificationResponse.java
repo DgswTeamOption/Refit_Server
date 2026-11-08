@@ -19,7 +19,7 @@ public class NotificationResponse {
     @Getter(onMethod_ =  @JsonProperty("isRead"))
     private final boolean isRead;
 
-    @JsonFormat(pattern = "yyyy-MM--dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private final LocalDateTime createdAt;
 
     public NotificationResponse(NotificationEntity entity) {
