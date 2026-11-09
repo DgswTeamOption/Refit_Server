@@ -23,7 +23,7 @@ public class ScheduleGetServiceImpl implements ScheduleGetService {
 
     @Override
     public List<ScheduleResponse> getSchedulesByClass(Long classId) {
-        return scheduleRepository.findByClassIdOrderByScheduleTimeAsc(classId).stream()
+        return scheduleRepository.findByClassIdOrderByStartTimeAsc(classId).stream()
                 .map(ScheduleResponse::new)
                 .collect(Collectors.toList());
     }

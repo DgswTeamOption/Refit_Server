@@ -4,7 +4,7 @@ import com.option.refit.domain.file.dto.FileUploadRequest;
 import com.option.refit.domain.file.dto.FileUploadResponse;
 import com.option.refit.domain.file.service.FileDeleteService;
 import com.option.refit.domain.file.service.FileUploadService;
-import com.option.refit.global.security.MemberDetails;
+import com.option.refit.global.jwt.JwtPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,11 +32,11 @@ public class FileController {
     )
     public ResponseEntity<FileUploadResponse> uploadImage(
             @ModelAttribute FileUploadRequest request,
-            @AuthenticationPrincipal MemberDetails memberDetails
+            @AuthenticationPrincipal JwtPrincipal principal
     ) {
         FileUploadResponse response = fileUploadService.uploadImage(
                 request.file(),
-                memberDetails.getUser()
+                principal.userId()
         );
 
         return ResponseEntity.ok(response);
@@ -46,11 +46,11 @@ public class FileController {
     @DeleteMapping("/{fileId}")
     public ResponseEntity<Void> deleteFile(
             @PathVariable Long fileId,
-            @AuthenticationPrincipal MemberDetails memberDetails
+            @AuthenticationPrincipal JwtPrincipal principal
     ) {
         fileDeleteService.deleteFile(
                 fileId,
-                memberDetails.getUser().getId()
+                principal.userId()
         );
 
         return ResponseEntity.noContent().build();

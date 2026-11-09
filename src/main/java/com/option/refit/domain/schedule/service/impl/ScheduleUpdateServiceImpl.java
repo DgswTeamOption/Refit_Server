@@ -5,6 +5,7 @@ import com.option.refit.domain.schedule.entity.ScheduleEntity;
 import com.option.refit.domain.schedule.repository.ScheduleRepository;
 import com.option.refit.global.error.scheduleError.exception.ScheduleNotFoundException;
 import com.option.refit.domain.schedule.service.ScheduleUpdateService;
+import com.option.refit.global.error.scheduleError.exception.InvalidDateFormatException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,10 +18,14 @@ public class ScheduleUpdateServiceImpl implements ScheduleUpdateService {
 
     @Override
     @Transactional
-    public void updateSchedule(Long classId, Long scheduleId, ScheduleRequest.CreateOrUpdate request) {
+    public void updateSchedule(Long classId, Long scheduleId, ScheduleRequest.Update request) {
+        if (!request.getEndTime().isAfter(request.getStartTime())) {
+            throw new InvalidDateFormatException();
+        }
+
         ScheduleEntity schedule = scheduleRepository.findByIdAndClassId(scheduleId, classId)
                 .orElseThrow(() -> new ScheduleNotFoundException());
 
-        schedule.updateSchedule(request.getClassName(), request.getDescription(), request.getScheduleTime());
+        schedule.updateTime(request.getStartTime(), request.getEndTime());
     }
 }
