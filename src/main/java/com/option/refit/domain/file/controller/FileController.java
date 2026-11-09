@@ -4,10 +4,10 @@ import com.option.refit.domain.file.dto.FileUploadRequest;
 import com.option.refit.domain.file.dto.FileUploadResponse;
 import com.option.refit.domain.file.service.FileDeleteService;
 import com.option.refit.domain.file.service.FileUploadService;
+import com.option.refit.global.common.ApiResponse;
 import com.option.refit.global.jwt.JwtPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -30,21 +30,19 @@ public class FileController {
             value = "/images",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
-    public ResponseEntity<FileUploadResponse> uploadImage(
+    public ApiResponse<FileUploadResponse> uploadImage(
             @ModelAttribute FileUploadRequest request,
             @AuthenticationPrincipal JwtPrincipal principal
     ) {
-        FileUploadResponse response = fileUploadService.uploadImage(
+        return ApiResponse.ok(fileUploadService.uploadImage(
                 request.file(),
                 principal.userId()
-        );
-
-        return ResponseEntity.ok(response);
+        ));
     }
 
     // 파일 삭제
     @DeleteMapping("/{fileId}")
-    public ResponseEntity<Void> deleteFile(
+    public ApiResponse<Void> deleteFile(
             @PathVariable Long fileId,
             @AuthenticationPrincipal JwtPrincipal principal
     ) {
@@ -53,6 +51,6 @@ public class FileController {
                 principal.userId()
         );
 
-        return ResponseEntity.noContent().build();
+        return ApiResponse.ok();
     }
 }
