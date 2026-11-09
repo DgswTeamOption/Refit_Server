@@ -12,35 +12,32 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-public class ClassRoomCreateServiceImpl {
+@Service
+@RequiredArgsConstructor
+public class ClassRoomCreateServiceImpl
+        implements ClassRoomCreateService {
 
-    @Service
-    @RequiredArgsConstructor
-    public class ClassroomCreateServiceImpl
-            implements ClassRoomCreateService {
+    private final ClassRoomRepository classroomRepository;
 
-        private final ClassRoomRepository classroomRepository;
+    @Override
+    @Transactional
+    public ClassRoomResponse createClassroom(
+            ClassRoomCreateRequest request,
+            User user
+    ) {
 
-        @Override
-        @Transactional
-        public ClassRoomResponse createClassroom(
-                ClassRoomCreateRequest request,
-                User user
-        ) {
-
-            if (user.getRole() != Role.TEACHER) {
-                throw new ClassPermissionDeniedException();
-            }
-
-            ClassRoomEntity classroom = ClassRoomEntity.create(
-                    request.name(),
-                    user
-            );
-
-            ClassRoomEntity savedClassroom =
-                    classroomRepository.save(classroom);
-
-            return ClassRoomResponse.from(savedClassroom);
+        if (user.getRole() != Role.TEACHER) {
+            throw new ClassPermissionDeniedException();
         }
+
+        ClassRoomEntity classroom = ClassRoomEntity.create(
+                request.name(),
+                user
+        );
+
+        ClassRoomEntity savedClassroom =
+                classroomRepository.save(classroom);
+
+        return ClassRoomResponse.from(savedClassroom);
     }
 }
