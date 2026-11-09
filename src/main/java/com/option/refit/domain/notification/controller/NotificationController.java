@@ -33,7 +33,7 @@ public class NotificationController {
         validatePrincipal(principal);
 
         return ApiResponse.ok(notificationGetService.getNotifications(
-                principal.userId(), principal.role(), pageable));
+                principal.userId(), pageable));
     }
 
     @DeleteMapping("/{notificationId}")
@@ -44,7 +44,7 @@ public class NotificationController {
         validatePrincipal(principal);
 
         notificationDeleteService.deleteNotification(
-                notificationId, principal.userId(), principal.role());
+                notificationId, principal.userId());
 
         return ApiResponse.ok();
     }

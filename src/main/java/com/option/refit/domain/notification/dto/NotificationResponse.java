@@ -13,6 +13,7 @@ public class NotificationResponse {
     private final Long notificationId;
     private final Long teacherId;
     private final Long studentId;
+    private final Long recipientId;
     private final String message;
     private final String notificationType;
 
@@ -26,6 +27,7 @@ public class NotificationResponse {
         this.notificationId = entity.getId();
         this.teacherId = entity.getTeacherId();
         this.studentId = entity.getStudentId();
+        this.recipientId = entity.getRecipientId();
         this.message = entity.getMessage();
         this.notificationType = entity.getNotificationType();
         this.isRead = entity.isRead();

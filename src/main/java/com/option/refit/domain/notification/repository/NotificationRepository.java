@@ -5,9 +5,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface NotificationRepository extends JpaRepository<NotificationEntity, Long> {
 
-    Page<NotificationEntity> findByTeacherId(Long teacherId, Pageable pageable);
+    Page<NotificationEntity> findByRecipientId(Long recipientId, Pageable pageable);
 
-    Page<NotificationEntity> findByStudentId(Long studentId, Pageable pageable);
+    Optional<NotificationEntity> findByIdAndRecipientId(
+            Long id, Long recipientId);
 }
