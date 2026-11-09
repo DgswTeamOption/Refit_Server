@@ -13,8 +13,12 @@ import com.option.refit.domain.user.entity.User;
 import com.option.refit.global.common.ApiResponse;
 import com.option.refit.global.security.MemberDetails;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.YearMonth;
@@ -23,6 +27,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/classrooms")
+@Validated
 public class ClassRoomController {
 
     private final ClassRoomCreateService createService;
@@ -55,7 +60,7 @@ public class ClassRoomController {
     @DeleteMapping("/{classroomId}/leave")
     public ApiResponse<Void> leaveClassroom(
             @AuthenticationPrincipal MemberDetails memberDetails,
-            @PathVariable Long classroomId
+            @PathVariable @Positive Long classroomId
     ) {
         User user = memberDetails.getUser();
         leaveService.leaveClassroom(classroomId, user);
@@ -71,19 +76,25 @@ public class ClassRoomController {
         return ApiResponse.ok(listService.getClassrooms(user));
     }
 
-    // 수업 홈 조회: 연도와 월을 생략하면 현재 월의 캘린더를 함께 반환
+    // 수업 홈 조회
     @GetMapping("/{classroomId}")
     public ApiResponse<ClassRoomHomeResponse> getClassroomHome(
             @AuthenticationPrincipal MemberDetails memberDetails,
-            @PathVariable Long classroomId,
-            @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) Integer month
+            @PathVariable @Positive Long classroomId,
+            @RequestParam(required = false) @Min(1) Integer year,
+            @RequestParam(required = false) @Min(1) @Max(12) Integer month
     ) {
         User user = memberDetails.getUser();
+
         YearMonth currentMonth = YearMonth.now();
 
-        int targetYear = year != null ? year : currentMonth.getYear();
-        int targetMonth = month != null ? month : currentMonth.getMonthValue();
+        int targetYear = year != null
+                ? year
+                : currentMonth.getYear();
+
+        int targetMonth = month != null
+                ? month
+                : currentMonth.getMonthValue();
 
         return ApiResponse.ok(homeService.getClassroomHome(
                 classroomId, user, targetYear, targetMonth
