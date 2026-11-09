@@ -1,14 +1,15 @@
 package com.option.refit.domain.classroom.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-//수업 참여 요청
+// 수업 참여 요청
 public record ClassRoomJoinRequest(
 
         @NotBlank(message = "수업 코드를 입력해주세요.")
         @Size(min = 8, max = 8, message = "수업 코드는 8자리여야 합니다.")
+        @Pattern(regexp = "^[a-zA-Z0-9]{8}$", message = "수업 코드는 영문자와 숫자만 입력할 수 있습니다.")
         String classCode
 
-) {
-}
+) { }

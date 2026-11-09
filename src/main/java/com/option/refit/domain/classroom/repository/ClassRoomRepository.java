@@ -16,6 +16,9 @@ public interface ClassRoomRepository
         // 해당 코드와 일치하는 수업이 없을 수도 있으므로 Optional로 반환
         Optional<ClassRoomEntity> findByClassCode(String classCode);
 
+        // 수업 코드 중복 여부 확인
+        boolean existsByClassCode(String classCode);
+
         // 특정 교사가 생성한 수업 목록을 조회
         // Teacher 엔티티의 ID가 teacherId와 일치하는 수업만 가져옴
         // CreatedAt을 기준으로 최근에 생성된 수업부터 정렬

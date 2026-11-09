@@ -1,4 +1,3 @@
-
 package com.option.refit.domain.classroom.controller;
 
 import com.option.refit.domain.classroom.dto.request.ClassRoomCreateRequest;
@@ -6,17 +5,19 @@ import com.option.refit.domain.classroom.dto.request.ClassRoomJoinRequest;
 import com.option.refit.domain.classroom.dto.response.ClassRoomHomeResponse;
 import com.option.refit.domain.classroom.dto.response.ClassRoomResponse;
 import com.option.refit.domain.classroom.service.ClassRoomCreateService;
+import com.option.refit.domain.classroom.service.ClassRoomHomeService;
 import com.option.refit.domain.classroom.service.ClassRoomJoinService;
 import com.option.refit.domain.classroom.service.ClassRoomLeaveService;
 import com.option.refit.domain.classroom.service.ClassRoomListService;
-import com.option.refit.domain.classroom.service.ClassRoomHomeService;
 import com.option.refit.domain.user.entity.User;
+import com.option.refit.global.common.ApiResponse;
 import com.option.refit.global.security.MemberDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.YearMonth;
 import java.util.List;
 
 @RestController
@@ -32,50 +33,60 @@ public class ClassRoomController {
 
     // 수업 생성
     @PostMapping
-    public ClassRoomResponse createClassroom(
+    public ApiResponse<ClassRoomResponse> createClassroom(
             @AuthenticationPrincipal MemberDetails memberDetails,
             @Valid @RequestBody ClassRoomCreateRequest request
     ) {
         User user = memberDetails.getUser();
-        return createService.createClassroom(request, user);
+        return ApiResponse.ok(createService.createClassroom(request, user));
     }
 
     // 수업 참여
     @PostMapping("/join")
-    public ClassRoomResponse joinClassroom(
+    public ApiResponse<ClassRoomResponse> joinClassroom(
             @AuthenticationPrincipal MemberDetails memberDetails,
             @Valid @RequestBody ClassRoomJoinRequest request
     ) {
         User user = memberDetails.getUser();
-        return joinService.joinClassroom(request, user);
+        return ApiResponse.ok(joinService.joinClassroom(request, user));
     }
 
     // 수업 나가기
     @DeleteMapping("/{classroomId}/leave")
-    public void leaveClassroom(
+    public ApiResponse<Void> leaveClassroom(
             @AuthenticationPrincipal MemberDetails memberDetails,
             @PathVariable Long classroomId
     ) {
         User user = memberDetails.getUser();
         leaveService.leaveClassroom(classroomId, user);
+        return ApiResponse.ok();
     }
 
     // 수업 목록 조회
     @GetMapping
-    public List<ClassRoomResponse> getClassrooms(
+    public ApiResponse<List<ClassRoomResponse>> getClassrooms(
             @AuthenticationPrincipal MemberDetails memberDetails
     ) {
         User user = memberDetails.getUser();
-        return listService.getClassrooms(user);
+        return ApiResponse.ok(listService.getClassrooms(user));
     }
 
-    // 수업 홈 조회
+    // 수업 홈 조회: 연도와 월을 생략하면 현재 월의 캘린더를 함께 반환
     @GetMapping("/{classroomId}")
-    public ClassRoomHomeResponse getClassroomHome(
+    public ApiResponse<ClassRoomHomeResponse> getClassroomHome(
             @AuthenticationPrincipal MemberDetails memberDetails,
-            @PathVariable Long classroomId
+            @PathVariable Long classroomId,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month
     ) {
         User user = memberDetails.getUser();
-        return homeService.getClassroomHome(classroomId, user);
+        YearMonth currentMonth = YearMonth.now();
+
+        int targetYear = year != null ? year : currentMonth.getYear();
+        int targetMonth = month != null ? month : currentMonth.getMonthValue();
+
+        return ApiResponse.ok(homeService.getClassroomHome(
+                classroomId, user, targetYear, targetMonth
+        ));
     }
 }

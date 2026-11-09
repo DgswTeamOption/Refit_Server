@@ -1,23 +1,26 @@
 package com.option.refit.domain.classroom.dto.response;
 
 import com.option.refit.domain.classroom.entity.ClassRoomEntity;
+import com.option.refit.domain.schedule.dto.ScheduleResponse;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-// 수업 홈에서 보여줄 기본 정보
+// 수업 홈에서 보여줄 기본 정보와 월별 캘린더 정보
 public record ClassRoomHomeResponse(
         Long classroomId,
         String name,
         String classCode,
         String teacherName,
         long memberCount,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        List<ScheduleResponse> calendar
 ) {
 
-    // Entity를 수업 홈 응답 DTO로 변환
     public static ClassRoomHomeResponse from(
             ClassRoomEntity classroom,
-            long memberCount
+            long memberCount,
+            List<ScheduleResponse> calendar
     ) {
         return new ClassRoomHomeResponse(
                 classroom.getId(),
@@ -25,7 +28,8 @@ public record ClassRoomHomeResponse(
                 classroom.getClassCode(),
                 classroom.getTeacher().getName(),
                 memberCount,
-                classroom.getCreatedAt()
+                classroom.getCreatedAt(),
+                calendar
         );
     }
 }

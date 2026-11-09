@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -27,7 +26,7 @@ public class ClassRoomEntity {
     private Long id;
 
     // 수업 이름을 저장
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 50)
     private String name;
 
     // 수업 참여 시 사용하는 고유 코드
@@ -44,25 +43,15 @@ public class ClassRoomEntity {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // 수업 이름과 교사 정보를 전달받아 객체를 생성하는 생성자이며 동시에 수업 참여 코드를 생성
-    private ClassRoomEntity(String name, User teacher) {
+    // 수업 정보와 외부에서 생성한 참여 코드로 객체 생성
+    private ClassRoomEntity(String name, User teacher, String classCode) {
         this.name = name;
         this.teacher = teacher;
-        this.classCode = generateClassCode();
+        this.classCode = classCode;
     }
 
-    // 외부에서 수업 엔티티를 생성할 때 사용하는 정적 팩토리 메서드
-    // private 생성자에 직접 접근하지 않고 이 메서드를 통해 객체를 생성
-    public static ClassRoomEntity create(String name, User teacher) {
-        return new ClassRoomEntity(name, teacher);
-    }
-
-    // UUID를 활용하여 8자리의 무작위 수업 참여 코드를 생성
-    private String generateClassCode() {
-        return UUID.randomUUID()
-                .toString()             // UUID를 문자열로 변환한다.
-                .replace("-", "")       // UUID에 포함된 하이픈(-)을 제거한다.
-                .substring(0, 8)        // 앞에서부터 8자리만 추출한다.
-                .toUpperCase();         // 영문자를 대문자로 변환한다.
+    // 수업 엔티티 생성
+    public static ClassRoomEntity create(String name, User teacher, String classCode) {
+        return new ClassRoomEntity(name, teacher, classCode);
     }
 }
