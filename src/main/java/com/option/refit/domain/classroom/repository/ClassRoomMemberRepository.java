@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 // ClassRoomMemberEntity를 데이터베이스에서 관리하는 Repository
+
 public interface ClassRoomMemberRepository
         extends JpaRepository<ClassRoomMemberEntity, Long> {
         // JpaRepository를 상속받아 기본적인 CRUD 기능 사용 가능
@@ -19,7 +20,7 @@ public interface ClassRoomMemberRepository
     );
 
     // 특정 사용자가 현재 참여 중인 수업 목록을 조회
-    // LeftAt이 null인 경우 아직 수업에서 나가지 않은 상태
+    // LeftAt이 null인 경우 수업에서 나가지 않은 상태
     // JoinedAt을 기준으로 최근에 참여한 수업부터 정렬
     List<ClassRoomMemberEntity>
     findAllByUser_IdAndLeftAtIsNullOrderByJoinedAtDesc(Long userId);
