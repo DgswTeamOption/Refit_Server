@@ -10,8 +10,8 @@ import com.option.refit.domain.classroom.service.ClassRoomJoinService;
 import com.option.refit.domain.classroom.service.ClassRoomLeaveService;
 import com.option.refit.domain.classroom.service.ClassRoomListService;
 import com.option.refit.domain.user.entity.User;
-import com.option.refit.global.common.ApiResponse;
-import com.option.refit.global.security.MemberDetails;
+import com.option.refit.domain.user.repository.UserRepository;
+import com.option.refit.global.jwt.JwtPrincipal;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -26,7 +26,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/classrooms")
+@RequestMapping("api/class")
 @Validated
 public class ClassRoomController {
 
@@ -35,56 +35,56 @@ public class ClassRoomController {
     private final ClassRoomLeaveService leaveService;
     private final ClassRoomListService listService;
     private final ClassRoomHomeService homeService;
+    private final UserRepository userRepository;
 
-    // 수업 생성
+    // 교사 권한을 확인한 뒤 수업을 생성한다.
     @PostMapping
-    public ApiResponse<ClassRoomResponse> createClassroom(
-            @AuthenticationPrincipal MemberDetails memberDetails,
+    public ClassRoomResponse createClassroom(
+            @AuthenticationPrincipal JwtPrincipal principal,
             @Valid @RequestBody ClassRoomCreateRequest request
     ) {
-        User user = memberDetails.getUser();
-        return ApiResponse.ok(createService.createClassroom(request, user));
+        User user = getUser(principal);
+        return createService.createClassroom(request, user);
     }
 
-    // 수업 참여
+    // 학생이 수업 참여 코드를 입력하여 수업에 참여한다.
     @PostMapping("/join")
-    public ApiResponse<ClassRoomResponse> joinClassroom(
-            @AuthenticationPrincipal MemberDetails memberDetails,
+    public ClassRoomResponse joinClassroom(
+            @AuthenticationPrincipal JwtPrincipal principal,
             @Valid @RequestBody ClassRoomJoinRequest request
     ) {
-        User user = memberDetails.getUser();
-        return ApiResponse.ok(joinService.joinClassroom(request, user));
+        User user = getUser(principal);
+        return joinService.joinClassroom(request, user);
     }
 
-    // 수업 나가기
+    // 현재 참여 중인 학생이 수업에서 나간다.
     @DeleteMapping("/{classroomId}/leave")
-    public ApiResponse<Void> leaveClassroom(
-            @AuthenticationPrincipal MemberDetails memberDetails,
+    public void leaveClassroom(
+            @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable @Positive Long classroomId
     ) {
-        User user = memberDetails.getUser();
+        User user = getUser(principal);
         leaveService.leaveClassroom(classroomId, user);
-        return ApiResponse.ok();
     }
 
-    // 수업 목록 조회
+    // 교사는 자신이 생성한 수업을, 학생은 참여 중인 수업을 조회한다.
     @GetMapping
-    public ApiResponse<List<ClassRoomResponse>> getClassrooms(
-            @AuthenticationPrincipal MemberDetails memberDetails
+    public List<ClassRoomResponse> getClassrooms(
+            @AuthenticationPrincipal JwtPrincipal principal
     ) {
-        User user = memberDetails.getUser();
-        return ApiResponse.ok(listService.getClassrooms(user));
+        User user = getUser(principal);
+        return listService.getClassrooms(user);
     }
 
-    // 수업 홈 조회
+    // 해당 수업의 교사이거나 현재 참여 중인 학생만 수업 홈을 조회할 수 있다.
     @GetMapping("/{classroomId}")
-    public ApiResponse<ClassRoomHomeResponse> getClassroomHome(
-            @AuthenticationPrincipal MemberDetails memberDetails,
+    public ClassRoomHomeResponse getClassroomHome(
+            @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable @Positive Long classroomId,
             @RequestParam(required = false) @Min(1) Integer year,
             @RequestParam(required = false) @Min(1) @Max(12) Integer month
     ) {
-        User user = memberDetails.getUser();
+        User user = getUser(principal);
 
         YearMonth currentMonth = YearMonth.now();
 
@@ -96,8 +96,14 @@ public class ClassRoomController {
                 ? month
                 : currentMonth.getMonthValue();
 
-        return ApiResponse.ok(homeService.getClassroomHome(
+        return homeService.getClassroomHome(
                 classroomId, user, targetYear, targetMonth
-        ));
+        );
+    }
+
+    // JWT 인증 정보에서 사용자 ID를 가져와 실제 User 엔티티를 조회한다.
+    private User getUser(JwtPrincipal principal) {
+        return userRepository.findByIdAndDeletedAtIsNull(principal.userId())
+                .orElseThrow();
     }
 }
