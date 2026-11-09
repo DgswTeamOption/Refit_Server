@@ -5,8 +5,12 @@ import com.option.refit.domain.file.entity.FileEntity;
 import com.option.refit.domain.file.repository.FileRepository;
 import com.option.refit.domain.user.entity.User;
 import com.option.refit.domain.user.repository.UserRepository;
+import com.option.refit.global.error.fileError.exception.EmptyFileException;
+import com.option.refit.global.error.fileError.exception.FileUploadFailedException;
+import com.option.refit.global.error.fileError.exception.InvalidFilePathException;
+import com.option.refit.global.error.userError.exception.InvalidFileFormatException;
 import com.option.refit.global.error.userError.exception.UserNotFoundException;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,15 +22,27 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class FileUploadServiceImpl implements FileUploadService {
 
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
 
-    // 사용자 홈 디렉터리의 uploads 폴더에 파일 저장
-    private final Path uploadDirectory = Paths.get(
-            System.getProperty("user.home"), "uploads").toAbsolutePath().normalize();
+    // 업로드 폴더 (기본값: 사용자 홈 디렉터리의 uploads)
+    private final Path uploadDirectory;
+    // 앱에서 바로 이미지를 불러올 수 있도록 응답 URL 앞에 붙이는 서버 주소
+    private final String baseUrl;
+
+    public FileUploadServiceImpl(
+            FileRepository fileRepository,
+            UserRepository userRepository,
+            @Value("${file.upload-dir:${user.home}/uploads}") String uploadDir,
+            @Value("${file.base-url:http://localhost:8080}") String baseUrl
+    ) {
+        this.fileRepository = fileRepository;
+        this.userRepository = userRepository;
+        this.uploadDirectory = Paths.get(uploadDir).toAbsolutePath().normalize();
+        this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
+    }
 
     // 이미지 업로드
     @Override
@@ -58,21 +74,21 @@ public class FileUploadServiceImpl implements FileUploadService {
             );
 
             FileEntity savedFile = fileRepository.save(fileEntity);
-            return new FileUploadResponse(savedFile.getId(), savedFile.getImageUrl());
+            return new FileUploadResponse(savedFile.getId(), baseUrl + savedFile.getImageUrl());
         } catch (IOException e) {
-            throw new IllegalStateException("파일 업로드에 실패했습니다.", e);
+            throw new FileUploadFailedException(e);
         }
     }
 
     // 빈 파일과 이미지가 아닌 파일의 업로드 예외 처리
     private void validateImage(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("업로드할 파일이 없습니다.");
+            throw new EmptyFileException();
         }
 
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
-            throw new IllegalArgumentException("이미지 파일만 업로드할 수 있습니다.");
+            throw new InvalidFileFormatException();
         }
     }
 
@@ -97,7 +113,7 @@ public class FileUploadServiceImpl implements FileUploadService {
     // 파일이 지정된 업로드 폴더 안에 있는지 확인
     private void validatePath(Path path) {
         if (!path.startsWith(uploadDirectory)) {
-            throw new IllegalArgumentException("잘못된 파일 경로입니다.");
+            throw new InvalidFilePathException();
         }
     }
 }

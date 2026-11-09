@@ -26,6 +26,7 @@ public class SecurityConfig {
     private static final String[] PUBLIC_URLS = {
             "/api/auth/**",
             "/api/user/email/**",
+            "/uploads/**", // 업로드된 이미지 (앱의 Image 컴포넌트는 Authorization 헤더를 못 붙임)
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/v3/api-docs/**"
