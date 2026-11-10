@@ -39,9 +39,7 @@ public class ClassRoomJoinServiceImpl
         }
 
         // 수업 코드 정리
-        String classCode = request.classCode()
-                .trim()
-                .toUpperCase();
+        String classCode = request.classCode();
 
         // 수업 코드로 수업 조회
         ClassRoomEntity classroom = classroomRepository
