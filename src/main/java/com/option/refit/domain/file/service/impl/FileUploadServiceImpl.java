@@ -1,8 +1,9 @@
-package com.option.refit.domain.file.service;
+package com.option.refit.domain.file.service.impl;
 
 import com.option.refit.domain.file.dto.FileUploadResponse;
 import com.option.refit.domain.file.entity.FileEntity;
 import com.option.refit.domain.file.repository.FileRepository;
+import com.option.refit.domain.file.service.FileUploadService;
 import com.option.refit.domain.user.entity.User;
 import com.option.refit.domain.user.repository.UserRepository;
 import com.option.refit.global.error.fileError.exception.EmptyFileException;

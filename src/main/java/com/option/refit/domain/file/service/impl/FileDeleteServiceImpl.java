@@ -1,7 +1,8 @@
-package com.option.refit.domain.file.service;
+package com.option.refit.domain.file.service.impl;
 
 import com.option.refit.domain.file.entity.FileEntity;
 import com.option.refit.domain.file.repository.FileRepository;
+import com.option.refit.domain.file.service.FileDeleteService;
 import com.option.refit.global.error.fileError.exception.FileAccessDeniedException;
 import com.option.refit.global.error.fileError.exception.FileDeleteFailedException;
 import com.option.refit.global.error.fileError.exception.InvalidFilePathException;
