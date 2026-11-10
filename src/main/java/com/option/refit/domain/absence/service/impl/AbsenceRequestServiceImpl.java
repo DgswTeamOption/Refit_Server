@@ -22,7 +22,7 @@ public class AbsenceRequestServiceImpl implements AbsenceRequestService {
 
     @Override
     @Transactional
-    public AbsenceResponse requestAbsence(Long studentId, AbsenceRequest request) {
+    public AbsenceResponse requestAbsence(Long studentId, Long classId, AbsenceRequest request) {
         // 지난 날짜로는 신청 불가 (오늘은 허용)
         if (request.getAbsenceDate().isBefore(LocalDate.now())) {
             throw new InvalidDateRangeException();
@@ -30,13 +30,13 @@ public class AbsenceRequestServiceImpl implements AbsenceRequestService {
 
         // 취소되지 않은 동일 신청이 있으면 중복
         if (absenceRepository.existsByStudentIdAndClassIdAndAbsenceDateAndStatusNot(
-                studentId, request.getClassId(), request.getAbsenceDate(), AbsenceStatus.CANCELED)) {
+                studentId, classId, request.getAbsenceDate(), AbsenceStatus.CANCELED)) {
             throw new DuplicateAbsenceException();
         }
 
         Absence absence = Absence.builder()
                 .studentId(studentId)
-                .classId(request.getClassId())
+                .classId(classId)
                 .absenceDate(request.getAbsenceDate())
                 .reason(request.getReason())
                 .build();

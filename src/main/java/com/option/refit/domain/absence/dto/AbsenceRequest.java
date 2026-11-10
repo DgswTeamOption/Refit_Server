@@ -10,14 +10,10 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-// 결석 신청: class_id, absence_date, reason
+// 결석 신청: absence_date, reason (수업은 경로의 classId 사용)
 @Getter
 @NoArgsConstructor
 public class AbsenceRequest {
-
-    @JsonProperty("class_id")
-    @NotNull(message = "수업은 필수입니다.")
-    private Long classId;
 
     @JsonProperty("absence_date")
     @NotNull(message = "결석 일자는 필수입니다.")

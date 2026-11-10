@@ -4,5 +4,5 @@ import com.option.refit.domain.absence.dto.AbsenceRequest;
 import com.option.refit.domain.absence.dto.AbsenceResponse;
 
 public interface AbsenceRequestService {
-    AbsenceResponse requestAbsence(Long studentId, AbsenceRequest request);
+    AbsenceResponse requestAbsence(Long studentId, Long classId, AbsenceRequest request);
 }

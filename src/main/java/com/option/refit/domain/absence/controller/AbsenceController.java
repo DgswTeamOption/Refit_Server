@@ -16,7 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/absences")
+@RequestMapping("/api/class/absences")
 @RequiredArgsConstructor
 public class AbsenceController {
 
@@ -24,16 +24,17 @@ public class AbsenceController {
     private final AbsenceCancelService absenceCancelService;
     private final AbsenceApproveService absenceApproveService;
 
-    // 결석 신청 (학생)
-    @PostMapping
+    // 결석 신청 (학생) - 명세: POST api/class/absences/{classId}
+    @PostMapping("/{classId}")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<AbsenceResponse> requestAbsence(
             @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable Long classId,
             @Valid @RequestBody AbsenceRequest request) {
         if (principal.role() != Role.STUDENT) {
             throw new RoleAccessDeniedException();
         }
-        return ApiResponse.ok(absenceRequestService.requestAbsence(principal.userId(), request));
+        return ApiResponse.ok(absenceRequestService.requestAbsence(principal.userId(), classId, request));
     }
 
     // 결석 신청 취소 (신청자 본인, 승인 전만)
