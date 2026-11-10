@@ -14,16 +14,33 @@ spring:
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    username: ${MAIL_USERNAME:teamoption8@gmail.com}
+    password: ${MAIL_PASSWORD:ntah seqb zjyw unip}
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
+      # 응답 지연 방지용 타임아웃(ms). 미설정 시 무한 대기
+      mail.smtp.connectiontimeout: 3000
+      mail.smtp.timeout: 5000
+      mail.smtp.writetimeout: 5000
 
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET:OptionRefit2026skfmtiOptionRefit2026skfmti}
   access-expiration-ms: 1800000      # 30분
   refresh-expiration-ms: 1209600000  # 14일
-  email-secret: ${JWT_EMAIL_SECRET}
+  email-secret: ${JWT_EMAIL_SECRET:OptionRefitEmail2026skfmtiOptionRefitEmail2026skfmti}
   email-code-expiration-ms: 300000
   email-verified-expiration-ms: 1800000
+
+# 쉼표로 여러 개 지정. 배포 시 CORS_ALLOWED_ORIGINS 환경변수로 덮어씀
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:8081,http://localhost:19006}
+
+file:
+  upload-dir: ${FILE_UPLOAD_DIR:${user.home}/uploads}
+  base-url: ${FILE_BASE_URL:http://localhost:8080}
+
+
+# Google OAuth 클라이언트 ID (쉼표로 여러 개: 웹/iOS/Android). 앱이 보낸 ID Token의 aud 검증에 사용
+google:
+  client-ids: ${GOOGLE_CLIENT_IDS:}

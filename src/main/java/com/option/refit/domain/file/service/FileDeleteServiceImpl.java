@@ -2,7 +2,11 @@ package com.option.refit.domain.file.service;
 
 import com.option.refit.domain.file.entity.FileEntity;
 import com.option.refit.domain.file.repository.FileRepository;
-import lombok.RequiredArgsConstructor;
+import com.option.refit.global.error.fileError.exception.FileAccessDeniedException;
+import com.option.refit.global.error.fileError.exception.FileDeleteFailedException;
+import com.option.refit.global.error.fileError.exception.InvalidFilePathException;
+import com.option.refit.global.error.fileError.exception.UploadedFileNotFoundException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -15,25 +19,30 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 @Service
-@RequiredArgsConstructor
 public class FileDeleteServiceImpl implements FileDeleteService {
 
     private final FileRepository fileRepository;
 
-    private final Path uploadDirectory = Paths.get(
-            System.getProperty("user.home"), "uploads"
-    ).toAbsolutePath().normalize();
+    private final Path uploadDirectory;
+
+    public FileDeleteServiceImpl(
+            FileRepository fileRepository,
+            @Value("${file.upload-dir:${user.home}/uploads}") String uploadDir
+    ) {
+        this.fileRepository = fileRepository;
+        this.uploadDirectory = Paths.get(uploadDir).toAbsolutePath().normalize();
+    }
 
     @Override
     @Transactional
     public void deleteFile(Long fileId, Long loginUserId) {
         FileEntity file = fileRepository.findById(fileId)
-                .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없습니다."));
+                .orElseThrow(UploadedFileNotFoundException::new);
 
         // 파일을 업로드한 사용자만 삭제 가능
         if (file.getUser().getId() == null
                 || !file.getUser().getId().equals(loginUserId)) {
-            throw new IllegalArgumentException("파일을 삭제할 권한이 없습니다.");
+            throw new FileAccessDeniedException();
         }
 
         Path filePath = uploadDirectory.resolve(file.getStoredFileName()).normalize();
@@ -57,14 +66,14 @@ public class FileDeleteServiceImpl implements FileDeleteService {
             if (moved) {
                 restoreFile(filePath, tempPath);
             }
-            throw new IllegalStateException("파일 삭제에 실패했습니다.", e);
+            throw new FileDeleteFailedException(e);
         }
     }
 
     // 파일 경로가 업로드 폴더 안에 있는지 확인
     private void validatePath(Path path) {
         if (!path.startsWith(uploadDirectory)) {
-            throw new IllegalArgumentException("잘못된 파일 경로입니다.");
+            throw new InvalidFilePathException();
         }
     }
 
