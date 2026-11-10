@@ -16,7 +16,7 @@ public class ClassRoomCreateAttemptService {
 
     private final ClassRoomRepository classroomRepository;
 
-    // 독립적인 트랜잭션에서 수업을 저장한다.
+    // 독립적인 트랜잭션에서 수업을 저장
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ClassRoomResponse create(
             ClassRoomCreateRequest request,

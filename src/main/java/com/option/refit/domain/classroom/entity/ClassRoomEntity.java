@@ -57,6 +57,10 @@ public class ClassRoomEntity {
         this.classCode = classCode;
     }
 
+    // 소프트 삭제가 수행된 날짜와 시간
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     // 수업 엔티티 생성
     public static ClassRoomEntity create(String name, User teacher, String classCode) {
         return new ClassRoomEntity(name, teacher, classCode);

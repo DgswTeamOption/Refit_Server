@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-// 학생이 수업에서 나간 뒤 다시 참여할 경우 새로운 데이터를 무조건 추가하지 않고 기존 참여 기록을 복구할 수 있도록 하였다
+// 학생이 수업에서 나간 뒤 다시 참여할 경우 새로운 데이터를 무조건 추가하지 않고 기존 참여 기록을 복구할 수 있도록 함
 
 @Service
 @RequiredArgsConstructor

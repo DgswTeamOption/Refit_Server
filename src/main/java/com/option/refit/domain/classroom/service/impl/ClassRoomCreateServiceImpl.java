@@ -21,7 +21,7 @@ public class ClassRoomCreateServiceImpl implements ClassRoomCreateService {
     private final ClassRoomRepository classroomRepository;
     private final ClassRoomCreateAttemptService createAttemptService;
 
-    // 수업 생성 요청을 처리한다.
+    // 수업 생성 요청을 처리
     @Override
     public ClassRoomResponse createClassroom(
             ClassRoomCreateRequest request,

@@ -1,34 +1,37 @@
-
 package com.option.refit.domain.classroom.service.impl;
 
 import com.option.refit.domain.classroom.entity.ClassRoomEntity;
 import com.option.refit.domain.classroom.repository.ClassRoomRepository;
 import com.option.refit.domain.classroom.service.ClassRoomDeleteService;
-
+import com.option.refit.domain.user.entity.Role;
+import com.option.refit.global.error.classError.exception.ClassAccessDeniedException;
+import com.option.refit.global.error.classError.exception.ClassNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ClassRoomDeleteServiceImpl implements ClassRoomDeleteService {
 
     private final ClassRoomRepository classRoomRepository;
 
     @Override
+    @Transactional
     public void deleteClassRoom(Long classId, Long teacherId) {
 
+        // 삭제되지 않은 수업만 조회
         ClassRoomEntity classRoom = classRoomRepository.findById(classId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("존재하지 않는 수업입니다."));
+                .orElseThrow(ClassNotFoundException::new);
 
         // 수업 생성 교사인지 확인
-        if (!classRoom.getTeacher().getId().equals(teacherId)) {
-            throw new IllegalArgumentException("수업 삭제 권한이 없습니다.");
+        if (!Objects.equals(classRoom.getTeacher().getId(), teacherId)) {
+            throw new ClassAccessDeniedException();
         }
 
-        // @SQLDelete에 의해 소프트 삭제 실행
+        // Soft Delete
         classRoomRepository.delete(classRoom);
     }
 }

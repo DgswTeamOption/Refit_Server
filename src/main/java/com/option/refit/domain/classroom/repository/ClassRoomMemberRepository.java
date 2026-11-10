@@ -13,13 +13,13 @@ import java.util.Optional;
 public interface ClassRoomMemberRepository
         extends JpaRepository<ClassRoomMemberEntity, Long> {
 
-    // 특정 수업에 특정 사용자가 참여한 기록을 조회한다.
+    // 특정 수업에 특정 사용자가 참여한 기록을 조회
     Optional<ClassRoomMemberEntity> findByClassroom_IdAndUser_Id(
             Long classroomId,
             Long userId
     );
 
-    // 특정 사용자의 참여 중인 수업 목록과 교사 정보를 함께 조회한다.
+    // 특정 사용자의 참여 중인 수업 목록과 교사 정보를 함께 조회
     @EntityGraph(attributePaths = {"classroom", "classroom.teacher"})
     List<ClassRoomMemberEntity>
     findAllByUser_IdAndLeftAtIsNullOrderByJoinedAtDesc(Long userId);
@@ -33,7 +33,7 @@ public interface ClassRoomMemberRepository
     // 특정 수업에 현재 참여 중인 인원수를 조회
     long countByClassroom_IdAndLeftAtIsNull(Long classroomId);
 
-    // 참여 중인 학생과 User를 한 번의 쿼리로 조회하여 N+1 방지
+    // 수업에 현재 참여 중인 학생과 User를 한 번의 쿼리로 조회하여 N+1을 방지
     @Query("""
             select member
             from ClassRoomMemberEntity member
@@ -42,5 +42,7 @@ public interface ClassRoomMemberRepository
               and member.leftAt is null
             order by member.joinedAt asc
             """)
-    List<ClassRoomMemberEntity> findActiveMembersWithUser(@Param("classroomId") Long classroomId);
+    List<ClassRoomMemberEntity> findActiveMembersWithUser(
+            @Param("classroomId") Long classroomId
+    );
 }
