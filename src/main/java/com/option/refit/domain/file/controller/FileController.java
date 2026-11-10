@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// 파일 업로드 및 삭제 API
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/files")
@@ -25,7 +24,6 @@ public class FileController {
     private final FileUploadService fileUploadService;
     private final FileDeleteService fileDeleteService;
 
-    // 이미지 업로드
     @PostMapping(
             value = "/images",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
@@ -40,7 +38,6 @@ public class FileController {
         ));
     }
 
-    // 파일 삭제
     @DeleteMapping("/{fileId}")
     public ApiResponse<Void> deleteFile(
             @PathVariable Long fileId,
