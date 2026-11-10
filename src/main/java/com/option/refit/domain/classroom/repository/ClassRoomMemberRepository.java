@@ -3,6 +3,8 @@ package com.option.refit.domain.classroom.repository;
 import com.option.refit.domain.classroom.entity.ClassRoomMemberEntity;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,4 +32,15 @@ public interface ClassRoomMemberRepository
 
     // 특정 수업에 현재 참여 중인 인원수를 조회
     long countByClassroom_IdAndLeftAtIsNull(Long classroomId);
+
+    // 참여 중인 학생과 User를 한 번의 쿼리로 조회하여 N+1 방지
+    @Query("""
+            select member
+            from ClassRoomMemberEntity member
+            join fetch member.user student
+            where member.classroom.id = :classroomId
+              and member.leftAt is null
+            order by member.joinedAt asc
+            """)
+    List<ClassRoomMemberEntity> findActiveMembersWithUser(@Param("classroomId") Long classroomId);
 }

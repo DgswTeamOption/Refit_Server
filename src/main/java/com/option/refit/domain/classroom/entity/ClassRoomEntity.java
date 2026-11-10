@@ -6,13 +6,20 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
-
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+
+// 수업 삭제 시 실제 데이터를 삭제하지 않고 deleted_at에 삭제 시각을 기록하는 소프트 삭제 설정
+@SQLDelete(sql = "UPDATE classroom SET deleted_at = NOW() WHERE id = ?")
+
+// 조회 시 deleted_at이 NULL인, 삭제되지 않은 수업만 조회하도록 설정
+@SQLRestriction("deleted_at IS NULL")
 
 // 데이터베이스에서 사용할 테이블 이름을 classroom으로 지정
 @Table(name = "classroom")
