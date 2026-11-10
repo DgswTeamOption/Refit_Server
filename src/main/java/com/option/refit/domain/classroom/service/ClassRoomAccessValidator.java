@@ -26,6 +26,15 @@ public class ClassRoomAccessValidator {
         }
     }
 
+    // 현재 참여 중인 학생만 통과 (수업이 없으면 404)
+    public void requireMember(Long classId, Long userId) {
+        getClassroom(classId);
+
+        if (!isActiveMember(classId, userId)) {
+            throw new ClassAccessDeniedException();
+        }
+    }
+
     // 담당 교사이거나 현재 참여 중인 학생만 통과
     public void requireTeacherOrMember(Long classId, Long userId) {
         ClassRoomEntity classroom = getClassroom(classId);
