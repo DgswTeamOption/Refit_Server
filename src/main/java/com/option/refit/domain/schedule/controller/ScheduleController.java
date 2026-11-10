@@ -46,7 +46,7 @@ public class ScheduleController {
         return ApiResponse.ok(scheduleGetService.getMonthlyCalendar(principal, classId, year, month));
     }
 
-    // 일정 등록 (선생님)
+    // 일정 등록 (해당 수업 담당 선생님, 대상 학생은 수업 참여 중이어야 함)
     @PostMapping("/schedule/{classId}")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<Long> createSchedule(
@@ -54,10 +54,10 @@ public class ScheduleController {
             @PathVariable Long classId,
             @Valid @RequestBody ScheduleRequest.Create request) {
         requireTeacher(principal);
-        return ApiResponse.ok(scheduleCreateService.createSchedule(classId, request));
+        return ApiResponse.ok(scheduleCreateService.createSchedule(principal, classId, request));
     }
 
-    // 일정 수정 (선생님)
+    // 일정 수정 (해당 수업 담당 선생님)
     @PatchMapping("/schedule/{classId}/{scheduleId}")
     public ApiResponse<Void> updateSchedule(
             @AuthenticationPrincipal JwtPrincipal principal,
@@ -65,18 +65,18 @@ public class ScheduleController {
             @PathVariable Long scheduleId,
             @Valid @RequestBody ScheduleRequest.Update request) {
         requireTeacher(principal);
-        scheduleUpdateService.updateSchedule(classId, scheduleId, request);
+        scheduleUpdateService.updateSchedule(principal, classId, scheduleId, request);
         return ApiResponse.ok();
     }
 
-    // 일정 삭제 (선생님)
+    // 일정 삭제 (해당 수업 담당 선생님)
     @DeleteMapping("/schedule/{classId}/{scheduleId}")
     public ApiResponse<Void> deleteSchedule(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable Long classId,
             @PathVariable Long scheduleId) {
         requireTeacher(principal);
-        scheduleDeleteService.deleteSchedule(classId, scheduleId);
+        scheduleDeleteService.deleteSchedule(principal, classId, scheduleId);
         return ApiResponse.ok();
     }
 
