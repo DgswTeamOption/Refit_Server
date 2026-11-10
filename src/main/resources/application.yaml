@@ -23,6 +23,10 @@ spring:
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
+      # 응답 지연 방지용 타임아웃(ms). 미설정 시 무한 대기
+      mail.smtp.connectiontimeout: 3000
+      mail.smtp.timeout: 5000
+      mail.smtp.writetimeout: 5000
 
 jwt:
   secret: ${JWT_SECRET:OptionRefit2026skfmtiOptionRefit2026skfmti}
