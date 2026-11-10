@@ -6,6 +6,7 @@ import com.option.refit.domain.notice.service.NoticeCreateService;
 import com.option.refit.domain.notice.service.NoticeDeleteService;
 import com.option.refit.domain.notice.service.NoticeGetService;
 import com.option.refit.domain.notice.service.NoticeUpdateService;
+import com.option.refit.domain.user.entity.Role;
 import com.option.refit.global.common.ApiResponse;
 import com.option.refit.global.jwt.JwtPrincipal;
 import jakarta.validation.Valid;
@@ -27,15 +28,29 @@ public class NoticeController {
     private final NoticeDeleteService noticeDeleteService;
 
     @GetMapping("/notice/{classId}")
-    public ApiResponse<List<NoticeResponse>> getNotices(@PathVariable Long classId) {
-        return ApiResponse.ok(noticeGetService.getNotices(classId));
+    public ApiResponse<List<NoticeResponse>> getNotices(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable Long classId
+    ) {
+        return ApiResponse.ok(
+                noticeGetService.getNotices(classId, principal.userId(), principal.role())
+        );
     }
 
     @GetMapping("/notice/{classId}/{noticeId}")
     public ApiResponse<NoticeResponse> getNotice(
+            @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable Long classId,
-            @PathVariable Long noticeId) {
-        return ApiResponse.ok(noticeGetService.getNotice(classId, noticeId));
+            @PathVariable Long noticeId
+    ) {
+        return ApiResponse.ok(
+                noticeGetService.getNotice(
+                        classId,
+                        noticeId,
+                        principal.userId(),
+                        principal.role()
+                )
+        );
     }
 
     @PostMapping("/notice/{classId}")
@@ -43,8 +58,14 @@ public class NoticeController {
     public ApiResponse<Long> createNotice(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable Long classId,
-            @Valid @RequestBody NoticeRequest.CreateOrUpdate request) {
-        Long noticeId = noticeCreateService.createNotice(classId, principal.userId(), principal.role(), request);
+            @Valid @RequestBody NoticeRequest.CreateOrUpdate request
+    ) {
+        Long noticeId = noticeCreateService.createNotice(
+                classId,
+                principal.userId(),
+                principal.role(),
+                request
+        );
         return ApiResponse.ok(noticeId);
     }
 
@@ -53,8 +74,14 @@ public class NoticeController {
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable Long classId,
             @PathVariable Long noticeId,
-            @Valid @RequestBody NoticeRequest.CreateOrUpdate request) {
-        noticeUpdateService.updateNotice(classId, noticeId, principal.userId(), request);
+            @Valid @RequestBody NoticeRequest.CreateOrUpdate request
+    ) {
+        noticeUpdateService.updateNotice(
+                classId,
+                noticeId,
+                principal.userId(),
+                request
+        );
         return ApiResponse.ok();
     }
 
@@ -62,8 +89,13 @@ public class NoticeController {
     public ApiResponse<Void> deleteNotice(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable Long classId,
-            @PathVariable Long noticeId) {
-        noticeDeleteService.deleteNotice(classId, noticeId, principal.userId());
+            @PathVariable Long noticeId
+    ) {
+        noticeDeleteService.deleteNotice(
+                classId,
+                noticeId,
+                principal.userId()
+        );
         return ApiResponse.ok();
     }
 }
