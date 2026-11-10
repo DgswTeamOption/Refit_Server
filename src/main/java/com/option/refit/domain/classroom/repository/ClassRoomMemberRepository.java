@@ -30,4 +30,9 @@ public interface ClassRoomMemberRepository
 
     // 특정 수업에 현재 참여 중인 인원수를 조회
     long countByClassroom_IdAndLeftAtIsNull(Long classroomId);
+
+    // 특정 수업에 현재 참여 중인 학생 목록을 이름순으로 조회 (탈퇴한 사용자 제외)
+    @EntityGraph(attributePaths = "user")
+    List<ClassRoomMemberEntity>
+    findAllByClassroom_IdAndLeftAtIsNullAndUser_DeletedAtIsNullOrderByUser_NameAsc(Long classroomId);
 }

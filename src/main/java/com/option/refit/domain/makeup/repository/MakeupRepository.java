@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -44,4 +45,22 @@ public interface MakeupRepository extends JpaRepository<Makeup, Long> {
             @Param("scheduleId") Long scheduleId,
             @Param("makeupTime") LocalDateTime makeupTime
     );
+
+    // 수업 내 학생별 보강 횟수 집계 (상태 필터, 학생 목록 한 번에 조회)
+    @Query("SELECT m.studentId AS studentId, COUNT(m) AS makeupCount " +
+            "FROM Makeup m " +
+            "WHERE m.classId = :classId AND m.approvalStatus = :status AND m.studentId IN :studentIds " +
+            "GROUP BY m.studentId")
+    List<StudentMakeupSummary> summarizeByStudent(
+            @Param("classId") Long classId,
+            @Param("status") MakeupApprovalStatus status,
+            @Param("studentIds") Collection<Long> studentIds
+    );
+
+    // 학생별 보강 집계 결과 프로젝션
+    interface StudentMakeupSummary {
+        Long getStudentId();
+
+        long getMakeupCount();
+    }
 }

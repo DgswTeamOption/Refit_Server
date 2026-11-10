@@ -5,9 +5,12 @@ import com.option.refit.domain.absence.entity.AbsenceStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,4 +55,24 @@ public interface AbsenceRepository extends JpaRepository<Absence, Long> {
                          @Param("to") LocalDate to);
 
     Optional<Absence> findByIdAndClassId(Long id, Long classId);
+
+    // 수업 내 학생별 결석 횟수와 최근 결석일 집계 (상태 필터, 학생 목록 한 번에 조회)
+    @Query("SELECT a.studentId AS studentId, COUNT(a) AS absenceCount, MAX(a.absenceDate) AS lastAbsenceDate " +
+            "FROM Absence a " +
+            "WHERE a.classId = :classId AND a.status = :status AND a.studentId IN :studentIds " +
+            "GROUP BY a.studentId")
+    List<StudentAbsenceSummary> summarizeByStudent(
+            @Param("classId") Long classId,
+            @Param("status") AbsenceStatus status,
+            @Param("studentIds") Collection<Long> studentIds
+    );
+
+    // 학생별 결석 집계 결과 프로젝션
+    interface StudentAbsenceSummary {
+        Long getStudentId();
+
+        long getAbsenceCount();
+
+        LocalDate getLastAbsenceDate();
+    }
 }
