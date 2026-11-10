@@ -20,12 +20,13 @@ public record ClassRoomHomeResponse(
     public static ClassRoomHomeResponse from(
             ClassRoomEntity classroom,
             long memberCount,
-            List<ScheduleResponse> calendar
+            List<ScheduleResponse> calendar,
+            boolean isTeacher
     ) {
         return new ClassRoomHomeResponse(
                 classroom.getId(),
                 classroom.getName(),
-                classroom.getClassCode(),
+                isTeacher ? classroom.getClassCode() : null,
                 classroom.getTeacher().getName(),
                 memberCount,
                 classroom.getCreatedAt(),

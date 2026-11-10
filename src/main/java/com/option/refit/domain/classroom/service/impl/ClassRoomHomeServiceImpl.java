@@ -55,6 +55,11 @@ public class ClassRoomHomeServiceImpl implements ClassRoomHomeService {
         List<ScheduleResponse> calendar =
                 scheduleGetService.getMonthlyCalendar(classroomId, year, month);
 
-        return ClassRoomHomeResponse.from(classroom, memberCount, calendar);
+        return ClassRoomHomeResponse.from(
+                classroom,
+                memberCount,
+                calendar,
+                isTeacher
+        );
     }
 }
