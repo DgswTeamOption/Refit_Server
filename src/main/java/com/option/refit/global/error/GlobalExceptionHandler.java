@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice // 전역적으로 예외를 처리하기 위해 사용
 public class GlobalExceptionHandler {
@@ -47,6 +48,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoHandlerFound(NoHandlerFoundException e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.of(HttpStatus.NOT_FOUND, "요청하신 경로를 찾을 수 없습니다"));
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class) // Spring 6.1+: 매핑되지 않은 경로는 이 예외로 발생
+    public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException e) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(ErrorResponse.of(HttpStatus.NOT_FOUND, "요청하신 경로를 찾을 수 없습니다"));

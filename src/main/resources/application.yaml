@@ -7,10 +7,6 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -23,6 +19,10 @@ spring:
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
+      # 응답 지연 방지용 타임아웃(ms). 미설정 시 무한 대기
+      mail.smtp.connectiontimeout: 3000
+      mail.smtp.timeout: 5000
+      mail.smtp.writetimeout: 5000
 
 jwt:
   secret: ${JWT_SECRET:OptionRefit2026skfmtiOptionRefit2026skfmti}
@@ -36,10 +36,10 @@ jwt:
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:8081,http://localhost:19006}
 
-# 업로드 이미지 저장 폴더 / 응답 imageUrl 앞에 붙는 서버 주소 (배포 시 환경변수로 덮어씀)
 file:
   upload-dir: ${FILE_UPLOAD_DIR:${user.home}/uploads}
   base-url: ${FILE_BASE_URL:http://localhost:8080}
+
 
 # Google OAuth 클라이언트 ID (쉼표로 여러 개: 웹/iOS/Android). 앱이 보낸 ID Token의 aud 검증에 사용
 google:
