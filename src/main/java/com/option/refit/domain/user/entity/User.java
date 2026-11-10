@@ -33,7 +33,7 @@ public class User {
     @Column(name = "name", nullable = false, length = 50)
     private String name;
 
-    @Column(name = "birth_date", nullable = false)
+    @Column(name = "birth_date")
     private LocalDate birthDate;
 
     @Column(name = "profile_image_url")
@@ -55,11 +55,12 @@ public class User {
     private LocalDate deletedAt;
 
     @Builder
-    public User(String emailId, String name, LocalDate birthDate, Role role) {
+    public User(String emailId, String name, LocalDate birthDate, Role role, String profileImageUrl) {
         this.emailId = emailId;
         this.name = name;
         this.birthDate = birthDate;
         this.role = role;
+        this.profileImageUrl = profileImageUrl;
     }
 
     public void changeName(String newName) {
