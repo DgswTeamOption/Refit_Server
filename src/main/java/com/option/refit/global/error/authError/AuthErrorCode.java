@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 public enum AuthErrorCode implements ErrorCode {
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 일치하지 않습니다"),
     DUPLICATE_USERNAME(HttpStatus.CONFLICT,"이미 사용 중인 아이디입니다"),
+    DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 가입된 이메일입니다"),
+    INVALID_GOOGLE_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 Google 인증 정보입니다"),
     INACTIVE_USER(HttpStatus.FORBIDDEN,"탈퇴하거나 정지된 계정입니다"),
     EMAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 발송에 실패했습니다"),
     INVALID_VERIFICATION_CODE(HttpStatus.UNAUTHORIZED, "인증 코드가 일치하지 않습니다"),

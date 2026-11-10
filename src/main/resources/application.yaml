@@ -39,3 +39,8 @@ cors:
 file:
   upload-dir: ${FILE_UPLOAD_DIR:${user.home}/uploads}
   base-url: ${FILE_BASE_URL:http://localhost:8080}
+
+
+# Google OAuth 클라이언트 ID (쉼표로 여러 개: 웹/iOS/Android). 앱이 보낸 ID Token의 aud 검증에 사용
+google:
+  client-ids: ${GOOGLE_CLIENT_IDS:}
