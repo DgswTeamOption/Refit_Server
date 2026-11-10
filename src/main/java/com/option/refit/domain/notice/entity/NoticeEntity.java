@@ -1,7 +1,12 @@
 package com.option.refit.domain.notice.entity;
 
 import com.option.refit.global.entity.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -47,8 +52,13 @@ public class NoticeEntity extends BaseEntity {
     }
 
     public void updateNotice(String title, String content) {
-        this.title = title;
-        this.content = content;
+        if (title != null) {
+            this.title = title;
+        }
+
+        if (content != null) {
+            this.content = content;
+        }
     }
 
     public boolean isWriter(Long userId) {

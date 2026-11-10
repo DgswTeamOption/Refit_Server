@@ -6,7 +6,6 @@ import com.option.refit.domain.notice.service.NoticeCreateService;
 import com.option.refit.domain.notice.service.NoticeDeleteService;
 import com.option.refit.domain.notice.service.NoticeGetService;
 import com.option.refit.domain.notice.service.NoticeUpdateService;
-import com.option.refit.domain.user.entity.Role;
 import com.option.refit.global.common.ApiResponse;
 import com.option.refit.global.jwt.JwtPrincipal;
 import jakarta.validation.Valid;
@@ -33,7 +32,11 @@ public class NoticeController {
             @PathVariable Long classId
     ) {
         return ApiResponse.ok(
-                noticeGetService.getNotices(classId, principal.userId(), principal.role())
+                noticeGetService.getNotices(
+                        classId,
+                        principal.userId(),
+                        principal.role()
+                )
         );
     }
 
@@ -58,7 +61,7 @@ public class NoticeController {
     public ApiResponse<Long> createNotice(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable Long classId,
-            @Valid @RequestBody NoticeRequest.CreateOrUpdate request
+            @Valid @RequestBody NoticeRequest.Create request
     ) {
         Long noticeId = noticeCreateService.createNotice(
                 classId,
@@ -74,7 +77,7 @@ public class NoticeController {
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable Long classId,
             @PathVariable Long noticeId,
-            @Valid @RequestBody NoticeRequest.CreateOrUpdate request
+            @Valid @RequestBody NoticeRequest.Update request
     ) {
         noticeUpdateService.updateNotice(
                 classId,

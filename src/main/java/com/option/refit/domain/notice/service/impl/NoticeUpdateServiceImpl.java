@@ -18,7 +18,12 @@ public class NoticeUpdateServiceImpl implements NoticeUpdateService {
 
     @Override
     @Transactional
-    public void updateNotice(Long classId, Long noticeId, Long userId, NoticeRequest.CreateOrUpdate request) {
+    public void updateNotice(
+            Long classId,
+            Long noticeId,
+            Long userId,
+            NoticeRequest.Update request
+    ) {
         NoticeEntity notice = noticeRepository.findByIdAndClassId(noticeId, classId)
                 .orElseThrow(NoticeNotFoundException::new);
 

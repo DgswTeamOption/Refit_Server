@@ -20,8 +20,7 @@ public class NoticeGetServiceImpl implements NoticeGetService {
 
     @Override
     public List<NoticeResponse> getNotices(Long classId, Long userId, Role role) {
-        // TODO: 클래스 멤버십 기능이 연결되면
-        // userId와 role이 classId에 접근 가능한지 검사
+        // TODO: Classroom 서비스로 userId가 classId에 접근 가능한지 확인
 
         return noticeRepository.findByClassIdOrderByCreatedAtDesc(classId).stream()
                 .map(NoticeResponse::new)
@@ -35,8 +34,7 @@ public class NoticeGetServiceImpl implements NoticeGetService {
             Long userId,
             Role role
     ) {
-        // TODO: 클래스 멤버십 기능이 연결되면
-        // userId와 role이 classId에 접근 가능한지 검사
+        // TODO: Classroom 서비스로 userId가 classId에 접근 가능한지 확인
 
         return noticeRepository.findByIdAndClassId(noticeId, classId)
                 .map(NoticeResponse::new)

@@ -18,8 +18,13 @@ public class NoticeCreateServiceImpl implements NoticeCreateService {
 
     @Override
     @Transactional
-    public Long createNotice(Long classId, Long userId, Role role, NoticeRequest.CreateOrUpdate request) {
-        // TODO: classRoom 머지 후 "이 반 담당 선생님인지" 검사로 교체
+    public Long createNotice(
+            Long classId,
+            Long userId,
+            Role role,
+            NoticeRequest.Create request
+    ) {
+        // TODO: Classroom 기능과 연결해 이 반의 담당 교사인지 확인
         if (role != Role.TEACHER) {
             throw new NoticePermissionDeniedException();
         }
