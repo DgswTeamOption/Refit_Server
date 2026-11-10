@@ -2,11 +2,13 @@ package com.option.refit.global.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 
 // 업로드된 이미지를 /uploads/** 로 제공
 @Configuration
@@ -25,6 +27,9 @@ public class StaticResourceConfig implements WebMvcConfigurer {
         if (!location.endsWith("/")) {
             location += "/";
         }
-        registry.addResourceHandler("/uploads/**").addResourceLocations(location);
+        // 파일명이 UUID라 내용이 바뀌지 않으므로 클라이언트가 재다운로드하지 않도록 장기 캐시
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations(location)
+                .setCacheControl(CacheControl.maxAge(Duration.ofDays(30)).cachePublic().immutable());
     }
 }
