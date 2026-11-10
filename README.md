@@ -28,24 +28,29 @@ Refit Server는 학생과 선생님이 수업·출결·결석·보강 일정을 
 ```
 src/main/java/com/option/refit/
 ├── domain/
-│   ├── auth/          # 회원가입 · 로그인 · 역할 선택
-│   ├── user/          # 프로필 조회/등록/수정, 회원 탈퇴
+│   ├── auth/          # 회원가입 · 로그인 · 역할 선택 (Google 로그인, 토큰 발급)
+│   ├── email/         # 이메일 인증 코드 발송/검증
+│   ├── user/          # 프로필 조회/등록/수정, 프로필 이미지 변경, 회원 탈퇴
 │   ├── notification/  # 알림 확인, 모두 읽음
 │   ├── classroom/     # 수업 생성/참여/나가기/목록, 수업 홈(캘린더 · 출결 요약)
 │   ├── notice/        # 공지 작성/조회/수정/삭제
 │   ├── absence/       # 결석 신청/취소/승인
 │   ├── makeup/        # 보강 신청/승인, 보강 가능 시간 설정
-│   ├── attendance/    # 출석 체크/조회
-│   └── schedule/      # 캘린더, 시간표/스케줄 관리
+│   ├── attendance/    # 출석 체크/조회, NFC 태그 관리 및 NFC 출석
+│   ├── schedule/      # 캘린더, 시간표/스케줄 관리 (스케줄러 포함)
+│   └── file/          # 파일 업로드/삭제
 ├── global/
-│   ├── error/         # 예외 처리
-│   ├── jwt/           # JWT 발급 · 검증
-│   ├── redis/         # Redis 설정
-│   ├── config/        # Security, Web, Swagger 등 설정 모음
-│   ├── common/        # BaseEntity, 공통 응답(ApiResponse)
-│   └── file/          # 파일 업로드
+│   ├── error/         # CustomException, ErrorCode, GlobalExceptionHandler, 도메인별 에러 코드
+│   ├── jwt/           # JWT 발급 · 검증, 인증 필터, 리프레시 토큰 저장소(Redis)
+│   ├── verification/  # 이메일 인증 코드 생성 · 저장(Redis) · 메일 발송
+│   ├── google/        # Google ID 토큰 검증, 사용자 정보
+│   ├── config/        # Security, Web, Swagger, Async, 정적 리소스 설정
+│   ├── entity/        # BaseEntity
+│   └── common/        # 공통 응답(ApiResponse)
 └── RefitApplication
 ```
+
+각 도메인은 `controller` · `service`(+`impl`) · `repository` · `entity` · `dto`(`request`/`response`) 계층으로 구성됩니다.
 
 ---
 
