@@ -10,6 +10,7 @@ import com.option.refit.domain.schedule.service.ScheduleGetService;
 import com.option.refit.domain.user.entity.User;
 import com.option.refit.global.error.classError.exception.ClassAccessDeniedException;
 import com.option.refit.global.error.classError.exception.ClassNotFoundException;
+import com.option.refit.global.jwt.JwtPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +54,8 @@ public class ClassRoomHomeServiceImpl implements ClassRoomHomeService {
 
         // schedule 패키지의 기존 월별 조회
         List<ScheduleResponse> calendar =
-                scheduleGetService.getMonthlyCalendar(classroomId, year, month);
+                scheduleGetService.getMonthlyCalendar(
+                        new JwtPrincipal(user.getId(), user.getRole()), classroomId, year, month);
 
         return ClassRoomHomeResponse.from(
                 classroom,

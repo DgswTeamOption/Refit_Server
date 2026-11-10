@@ -28,19 +28,22 @@ public class ScheduleController {
     private final ScheduleUpdateService scheduleUpdateService;
     private final ScheduleDeleteService scheduleDeleteService;
 
-    // 수업 일정 조회 (로그인)
+    // 수업 일정 조회 (담당 선생님: 수업 전체 / 참여 학생: 본인 일정만)
     @GetMapping("/schedule/{classId}")
-    public ApiResponse<List<ScheduleResponse>> getSchedules(@PathVariable Long classId) {
-        return ApiResponse.ok(scheduleGetService.getSchedulesByClass(classId));
+    public ApiResponse<List<ScheduleResponse>> getSchedules(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable Long classId) {
+        return ApiResponse.ok(scheduleGetService.getSchedulesByClass(principal, classId));
     }
 
-    // 캘린더 수업일 표시 (로그인)
+    // 캘린더 수업일 표시 (담당 선생님: 수업 전체 / 참여 학생: 본인 일정만)
     @GetMapping("/calendar/{classId}")
     public ApiResponse<List<ScheduleResponse>> getMonthlyCalendar(
+            @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable Long classId,
             @RequestParam int year,
             @RequestParam int month) {
-        return ApiResponse.ok(scheduleGetService.getMonthlyCalendar(classId, year, month));
+        return ApiResponse.ok(scheduleGetService.getMonthlyCalendar(principal, classId, year, month));
     }
 
     // 일정 등록 (선생님)
