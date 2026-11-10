@@ -10,17 +10,19 @@ import com.option.refit.global.error.fileError.exception.FileUploadFailedExcepti
 import com.option.refit.global.error.fileError.exception.InvalidFilePathException;
 import com.option.refit.global.error.userError.exception.InvalidFileFormatException;
 import com.option.refit.global.error.userError.exception.UserNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class FileUploadServiceImpl implements FileUploadService {
 
@@ -45,8 +47,9 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
     // 이미지 업로드
+    // 파일 쓰기(느린 I/O) 동안 DB 커넥션을 점유하지 않도록 트랜잭션 밖에서 처리한다.
+    // 순서: 사용자 조회 -> 파일 쓰기 -> DB 저장 (각 단계는 repository 단위의 짧은 트랜잭션)
     @Override
-    @Transactional
     public FileUploadResponse uploadImage(MultipartFile file, Long userId) {
         validateImage(file);
 
@@ -60,10 +63,9 @@ public class FileUploadServiceImpl implements FileUploadService {
 
         validatePath(targetPath);
 
-        try {
-            Files.createDirectories(uploadDirectory);
-            Files.copy(file.getInputStream(), targetPath);
+        writeFile(file, targetPath);
 
+        try {
             FileEntity fileEntity = FileEntity.create(
                     originalFileName,
                     storedFileName,
@@ -75,8 +77,32 @@ public class FileUploadServiceImpl implements FileUploadService {
 
             FileEntity savedFile = fileRepository.save(fileEntity);
             return new FileUploadResponse(savedFile.getId(), baseUrl + savedFile.getImageUrl());
+        } catch (RuntimeException e) {
+            // DB 저장 실패 시 이미 저장한 파일이 고아 파일로 남지 않도록 삭제
+            deleteQuietly(targetPath);
+            throw e;
+        }
+    }
+
+    // 업로드 폴더에 파일 저장
+    private void writeFile(MultipartFile file, Path targetPath) {
+        try {
+            Files.createDirectories(uploadDirectory);
+            try (InputStream inputStream = file.getInputStream()) {
+                Files.copy(inputStream, targetPath);
+            }
         } catch (IOException e) {
+            deleteQuietly(targetPath); // 쓰다 만 파일 정리
             throw new FileUploadFailedException(e);
+        }
+    }
+
+    // 롤백용 파일 삭제 (실패해도 원래 예외를 가리지 않도록 로그만 남김)
+    private void deleteQuietly(Path path) {
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            log.warn("업로드 롤백 중 파일 삭제에 실패했습니다: {}", path, e);
         }
     }
 
