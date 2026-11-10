@@ -63,10 +63,6 @@ public class User {
         this.profileImageUrl = profileImageUrl;
     }
 
-    public void changeName(String newName) {
-        this.name = newName;
-    }
-
     public void updateProfile(String name) {
         this.name = name;
     }
