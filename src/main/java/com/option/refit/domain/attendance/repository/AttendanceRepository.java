@@ -19,8 +19,14 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
     boolean existsByScheduleId(Long scheduleId);
 
+    // 일정(회차)의 학생별 출석 기록 - (schedule_id, student_id) 유니크 제약과 같은 기준
+    Optional<Attendance> findByScheduleIdAndStudentId(Long scheduleId, Long studentId);
+
     // 여러 일정의 출석 기록을 한 번에 조회
     List<Attendance> findByScheduleIdIn(Collection<Long> scheduleIds);
+
+    // 수업의 특정 날짜 출석 기록 전체
+    List<Attendance> findByClassIdAndAttendanceDate(Long classId, LocalDate attendanceDate);
 
     // 학생 본인의 기간별 출석 내역
     List<Attendance> findByClassIdAndStudentIdAndAttendanceDateBetweenOrderByAttendanceDateAscIdAsc(
