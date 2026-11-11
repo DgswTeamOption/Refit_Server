@@ -1,5 +1,6 @@
 package com.option.refit.domain.makeup.repository;
 
+import org.springframework.data.jpa.repository.Modifying;
 import com.option.refit.domain.makeup.entity.MakeupAvailability;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,4 +27,9 @@ public interface MakeupAvailabilityRepository extends JpaRepository<MakeupAvaila
             @Param("scheduleId") Long scheduleId,
             @Param("makeupTime") LocalDateTime makeupTime
     );
+
+    // 수업 삭제 시 해당 수업의 보강 가능 시간을 모두 삭제
+    @Modifying
+    @Query("DELETE FROM MakeupAvailability a WHERE a.classId = :classId")
+    void deleteAllByClassId(@Param("classId") Long classId);
 }

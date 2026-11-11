@@ -1,5 +1,6 @@
 package com.option.refit.domain.attendance.repository;
 
+import org.springframework.data.jpa.repository.Modifying;
 import com.option.refit.domain.attendance.entity.Attendance;
 import com.option.refit.domain.attendance.entity.AttendanceStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -53,4 +54,9 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
         long getCount();
     }
+
+    // 수업 삭제 시 해당 수업의 출석 기록을 모두 삭제
+    @Modifying
+    @Query("DELETE FROM Attendance a WHERE a.classId = :classId")
+    void deleteAllByClassId(@Param("classId") Long classId);
 }
