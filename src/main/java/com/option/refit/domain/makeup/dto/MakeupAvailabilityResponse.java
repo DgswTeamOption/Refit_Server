@@ -25,11 +25,14 @@ public class MakeupAvailabilityResponse {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private final LocalDateTime makeupTime;
 
+    private final int capacity;
+
     public MakeupAvailabilityResponse(MakeupAvailability availability) {
         this.id = availability.getId();
         this.classId = availability.getClassId();
         this.teacherId = availability.getTeacherId();
         this.scheduleId = availability.getScheduleId();
         this.makeupTime = availability.getMakeupTime();
+        this.capacity = availability.getCapacity();
     }
 }

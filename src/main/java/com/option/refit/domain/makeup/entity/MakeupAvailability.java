@@ -39,6 +39,14 @@ public class MakeupAvailability extends BaseEntity {
     @Column(name = "capacity", nullable = false)
     private int capacity;
 
+    public void changeMakeupTime(LocalDateTime makeupTime) {
+        this.makeupTime = makeupTime;
+    }
+
+    public void changeCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
     @Builder
     public MakeupAvailability(Long classId, Long teacherId, Long scheduleId, LocalDateTime makeupTime, int capacity) {
         this.classId = classId;

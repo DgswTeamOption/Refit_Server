@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -26,6 +27,25 @@ public interface MakeupAvailabilityRepository extends JpaRepository<MakeupAvaila
             @Param("classId") Long classId,
             @Param("scheduleId") Long scheduleId,
             @Param("makeupTime") LocalDateTime makeupTime
+    );
+
+    // 수정 시 자기 자신을 제외하고 같은 수업·일정·시간이 이미 있는지 확인
+    boolean existsByClassIdAndScheduleIdAndMakeupTimeAndIdNot(
+            Long classId, Long scheduleId, LocalDateTime makeupTime, Long id);
+
+    // 수정·삭제 시 동시 신청과 엇갈리지 않도록 행을 잠그고 조회
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT a FROM MakeupAvailability a WHERE a.id = :id")
+    Optional<MakeupAvailability> findByIdForUpdate(@Param("id") Long id);
+
+    // 보강 가능 시간 목록 조회: 수업(선택), 선생님(선택)으로 필터링, 가까운 시간 순
+    @Query("SELECT a FROM MakeupAvailability a " +
+            "WHERE (:classId IS NULL OR a.classId = :classId) " +
+            "AND (:teacherId IS NULL OR a.teacherId = :teacherId) " +
+            "ORDER BY a.makeupTime ASC, a.id ASC")
+    List<MakeupAvailability> findList(
+            @Param("classId") Long classId,
+            @Param("teacherId") Long teacherId
     );
 
     // 수업 삭제 시 해당 수업의 보강 가능 시간을 모두 삭제
