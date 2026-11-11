@@ -51,14 +51,13 @@ jwt:
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:8081,http://localhost:19006}
 
+google:
+  client-ids: ${GOOGLE_CLIENT_IDS}
+
+# 업로드 이미지 저장 경로와 외부에서 접근할 때의 기본 주소
 file:
   upload-dir: ${FILE_UPLOAD_DIR:${user.home}/uploads}
   base-url: ${FILE_BASE_URL:http://localhost:8080}
-
-
-# Google OAuth 클라이언트 ID (쉼표로 여러 개: 웹/iOS/Android). 앱이 보낸 ID Token의 aud 검증에 사용
-google:
-  client-ids: ${GOOGLE_CLIENT_IDS:}
 
 # NFC 태그에 기록할 출석 주소의 기본 주소(웹 주소 또는 앱 딥링크). 서버가 ?token={token}을 붙여 내려준다.
 nfc:
