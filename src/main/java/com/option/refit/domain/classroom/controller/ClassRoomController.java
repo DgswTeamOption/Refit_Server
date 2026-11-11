@@ -4,11 +4,13 @@ import com.option.refit.domain.classroom.dto.request.ClassRoomCreateRequest;
 import com.option.refit.domain.classroom.dto.request.ClassRoomJoinRequest;
 import com.option.refit.domain.classroom.dto.response.ClassRoomHomeResponse;
 import com.option.refit.domain.classroom.dto.response.ClassRoomResponse;
+import com.option.refit.domain.classroom.dto.response.ClassRoomStudentResponse;
 import com.option.refit.domain.classroom.service.ClassRoomCreateService;
 import com.option.refit.domain.classroom.service.ClassRoomHomeService;
 import com.option.refit.domain.classroom.service.ClassRoomJoinService;
 import com.option.refit.domain.classroom.service.ClassRoomLeaveService;
 import com.option.refit.domain.classroom.service.ClassRoomListService;
+import com.option.refit.domain.classroom.service.ClassRoomStudentListService;
 import com.option.refit.domain.user.entity.User;
 import com.option.refit.domain.user.repository.UserRepository;
 import com.option.refit.global.jwt.JwtPrincipal;
@@ -35,6 +37,7 @@ public class ClassRoomController {
     private final ClassRoomLeaveService leaveService;
     private final ClassRoomListService listService;
     private final ClassRoomHomeService homeService;
+    private final ClassRoomStudentListService studentListService;
     private final UserRepository userRepository;
 
     // 교사 권한을 확인한 뒤 수업을 생성한다.
@@ -99,6 +102,16 @@ public class ClassRoomController {
         return homeService.getClassroomHome(
                 classroomId, user, targetYear, targetMonth
         );
+    }
+
+    // 담당 교사만 수업에 참여 중인 학생 목록과 결석·보강 현황을 조회할 수 있다.
+    @GetMapping("/{classroomId}/students")
+    public List<ClassRoomStudentResponse> getClassroomStudents(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable @Positive Long classroomId
+    ) {
+        User user = getUser(principal);
+        return studentListService.getStudents(classroomId, user);
     }
 
     // JWT 인증 정보에서 사용자 ID를 가져와 실제 User 엔티티를 조회한다.
