@@ -6,6 +6,7 @@ import com.option.refit.domain.classroom.dto.response.ClassRoomHomeResponse;
 import com.option.refit.domain.classroom.dto.response.ClassRoomResponse;
 import com.option.refit.domain.classroom.dto.response.ClassRoomStudentResponse;
 import com.option.refit.domain.classroom.service.ClassRoomCreateService;
+import com.option.refit.domain.classroom.service.ClassRoomDeleteService;
 import com.option.refit.domain.classroom.service.ClassRoomHomeService;
 import com.option.refit.domain.classroom.service.ClassRoomJoinService;
 import com.option.refit.domain.classroom.service.ClassRoomLeaveService;
@@ -35,6 +36,7 @@ public class ClassRoomController {
     private final ClassRoomCreateService createService;
     private final ClassRoomJoinService joinService;
     private final ClassRoomLeaveService leaveService;
+    private final ClassRoomDeleteService deleteService;
     private final ClassRoomListService listService;
     private final ClassRoomHomeService homeService;
     private final ClassRoomStudentListService studentListService;
@@ -68,6 +70,16 @@ public class ClassRoomController {
     ) {
         User user = getUser(principal);
         leaveService.leaveClassroom(classroomId, user);
+    }
+
+    // 담당 교사만 수업과 연관 데이터(회차·가입 학생·결석·보강·NFC 연결 등)를 삭제한다.
+    @DeleteMapping("/{classroomId}")
+    public void deleteClassroom(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable @Positive Long classroomId
+    ) {
+        User user = getUser(principal);
+        deleteService.deleteClassroom(classroomId, user);
     }
 
     // 교사는 자신이 생성한 수업을, 학생은 참여 중인 수업을 조회한다.
