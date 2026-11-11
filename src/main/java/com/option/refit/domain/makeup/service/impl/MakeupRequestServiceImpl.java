@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,10 +31,6 @@ public class MakeupRequestServiceImpl implements MakeupRequestService {
     private final MakeupRepository makeupRepository;
     private final MakeupAvailabilityRepository availabilityRepository;
     private final ScheduleRepository scheduleRepository;
-
-    // 정원·중복 판정에서 제외하는 상태 (거절·취소된 신청은 자리를 차지하지 않는다)
-    private static final List<MakeupApprovalStatus> INACTIVE_STATUSES =
-            List.of(MakeupApprovalStatus.REJECTED, MakeupApprovalStatus.CANCELLED);
 
     @Override
     @Transactional
@@ -67,13 +62,13 @@ public class MakeupRequestServiceImpl implements MakeupRequestService {
 
         // 같은 일정에 유효한(거절·취소 제외) 신청이 있으면 중복 (409)
         if (makeupRepository.existsByStudentIdAndClassIdAndScheduleIdAndApprovalStatusNotIn(
-                principal.userId(), request.getClassId(), request.getScheduleId(), INACTIVE_STATUSES)) {
+                principal.userId(), request.getClassId(), request.getScheduleId(), MakeupApprovalStatus.INACTIVE)) {
             throw new DuplicateMakeupException();
         }
 
         // 시간대별 정원 초과 (409): 대기+승인 건수가 정원 이상이면 마감
         long applied = makeupRepository.countByClassIdAndScheduleIdAndMakeupTimeAndApprovalStatusNotIn(
-                request.getClassId(), request.getScheduleId(), request.getMakeupTime(), INACTIVE_STATUSES);
+                request.getClassId(), request.getScheduleId(), request.getMakeupTime(), MakeupApprovalStatus.INACTIVE);
         if (applied >= availability.getCapacity()) {
             throw new MakeupCapacityExceededException();
         }
