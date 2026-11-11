@@ -1,10 +1,12 @@
 package com.option.refit.domain.classroom.controller;
 
+import com.option.refit.domain.classroom.dto.request.ClassRoomBannerChangeRequest;
 import com.option.refit.domain.classroom.dto.request.ClassRoomCreateRequest;
 import com.option.refit.domain.classroom.dto.request.ClassRoomJoinRequest;
 import com.option.refit.domain.classroom.dto.response.ClassRoomHomeResponse;
 import com.option.refit.domain.classroom.dto.response.ClassRoomResponse;
 import com.option.refit.domain.classroom.dto.response.ClassRoomStudentResponse;
+import com.option.refit.domain.classroom.service.ClassRoomBannerService;
 import com.option.refit.domain.classroom.service.ClassRoomCreateService;
 import com.option.refit.domain.classroom.service.ClassRoomDeleteService;
 import com.option.refit.domain.classroom.service.ClassRoomHomeService;
@@ -34,6 +36,7 @@ import java.util.List;
 public class ClassRoomController {
 
     private final ClassRoomCreateService createService;
+    private final ClassRoomBannerService bannerService;
     private final ClassRoomJoinService joinService;
     private final ClassRoomLeaveService leaveService;
     private final ClassRoomDeleteService deleteService;
@@ -80,6 +83,27 @@ public class ClassRoomController {
     ) {
         User user = getUser(principal);
         deleteService.deleteClassroom(classroomId, user);
+    }
+
+    // 담당 교사만 수업 배너를 새 이미지로 교체한다. 기존 배너 파일은 삭제된다.
+    @PutMapping("/{classroomId}/banner")
+    public ClassRoomResponse changeBanner(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable @Positive Long classroomId,
+            @Valid @RequestBody ClassRoomBannerChangeRequest request
+    ) {
+        User user = getUser(principal);
+        return bannerService.changeBanner(classroomId, request, user);
+    }
+
+    // 담당 교사만 수업 배너를 삭제한다. 배너 파일도 함께 삭제된다.
+    @DeleteMapping("/{classroomId}/banner")
+    public void deleteBanner(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable @Positive Long classroomId
+    ) {
+        User user = getUser(principal);
+        bannerService.deleteBanner(classroomId, user);
     }
 
     // 교사는 자신이 생성한 수업을, 학생은 참여 중인 수업을 조회한다.
