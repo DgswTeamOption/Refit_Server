@@ -28,22 +28,25 @@ public class ScheduleController {
     private final ScheduleUpdateService scheduleUpdateService;
     private final ScheduleDeleteService scheduleDeleteService;
 
-    // 수업 일정 조회 (로그인)
+    // 수업 일정 조회 (담당 선생님: 수업 전체 / 참여 학생: 본인 일정만)
     @GetMapping("/schedule/{classId}")
-    public ApiResponse<List<ScheduleResponse>> getSchedules(@PathVariable Long classId) {
-        return ApiResponse.ok(scheduleGetService.getSchedulesByClass(classId));
+    public ApiResponse<List<ScheduleResponse>> getSchedules(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable Long classId) {
+        return ApiResponse.ok(scheduleGetService.getSchedulesByClass(principal, classId));
     }
 
-    // 캘린더 수업일 표시 (로그인)
+    // 캘린더 수업일 표시 (담당 선생님: 수업 전체 / 참여 학생: 본인 일정만)
     @GetMapping("/calendar/{classId}")
     public ApiResponse<List<ScheduleResponse>> getMonthlyCalendar(
+            @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable Long classId,
             @RequestParam int year,
             @RequestParam int month) {
-        return ApiResponse.ok(scheduleGetService.getMonthlyCalendar(classId, year, month));
+        return ApiResponse.ok(scheduleGetService.getMonthlyCalendar(principal, classId, year, month));
     }
 
-    // 일정 등록 (선생님)
+    // 일정 등록 (해당 수업 담당 선생님, 대상 학생은 수업 참여 중이어야 함)
     @PostMapping("/schedule/{classId}")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<Long> createSchedule(
@@ -51,10 +54,10 @@ public class ScheduleController {
             @PathVariable Long classId,
             @Valid @RequestBody ScheduleRequest.Create request) {
         requireTeacher(principal);
-        return ApiResponse.ok(scheduleCreateService.createSchedule(classId, request));
+        return ApiResponse.ok(scheduleCreateService.createSchedule(principal, classId, request));
     }
 
-    // 일정 수정 (선생님)
+    // 일정 수정 (해당 수업 담당 선생님)
     @PatchMapping("/schedule/{classId}/{scheduleId}")
     public ApiResponse<Void> updateSchedule(
             @AuthenticationPrincipal JwtPrincipal principal,
@@ -62,18 +65,18 @@ public class ScheduleController {
             @PathVariable Long scheduleId,
             @Valid @RequestBody ScheduleRequest.Update request) {
         requireTeacher(principal);
-        scheduleUpdateService.updateSchedule(classId, scheduleId, request);
+        scheduleUpdateService.updateSchedule(principal, classId, scheduleId, request);
         return ApiResponse.ok();
     }
 
-    // 일정 삭제 (선생님)
+    // 일정 삭제 (해당 수업 담당 선생님)
     @DeleteMapping("/schedule/{classId}/{scheduleId}")
     public ApiResponse<Void> deleteSchedule(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable Long classId,
             @PathVariable Long scheduleId) {
         requireTeacher(principal);
-        scheduleDeleteService.deleteSchedule(classId, scheduleId);
+        scheduleDeleteService.deleteSchedule(principal, classId, scheduleId);
         return ApiResponse.ok();
     }
 

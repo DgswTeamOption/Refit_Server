@@ -6,6 +6,7 @@ import com.option.refit.domain.absence.entity.Absence;
 import com.option.refit.domain.absence.entity.AbsenceStatus;
 import com.option.refit.domain.absence.repository.AbsenceRepository;
 import com.option.refit.domain.absence.service.AbsenceRequestService;
+import com.option.refit.domain.classroom.service.ClassRoomAccessValidator;
 import com.option.refit.global.error.absenceError.exception.DuplicateAbsenceException;
 import com.option.refit.global.error.absenceError.exception.InvalidDateRangeException;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +20,14 @@ import java.time.LocalDate;
 public class AbsenceRequestServiceImpl implements AbsenceRequestService {
 
     private final AbsenceRepository absenceRepository;
+    private final ClassRoomAccessValidator accessValidator;
 
     @Override
     @Transactional
     public AbsenceResponse requestAbsence(Long studentId, Long classId, AbsenceRequest request) {
+        // 수업이 존재하고(404) 신청 학생이 해당 수업에 참여 중이어야 함(403)
+        accessValidator.requireMember(classId, studentId);
+
         // 지난 날짜로는 신청 불가 (오늘은 허용)
         if (request.getAbsenceDate().isBefore(LocalDate.now())) {
             throw new InvalidDateRangeException();
