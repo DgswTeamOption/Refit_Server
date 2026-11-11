@@ -7,7 +7,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-// 보강 신청 / 보강 목록 조회 응답 (approval_status: 0 대기, 1 승인, 2 거절)
+// 보강 신청 / 보강 목록 조회 응답 (approval_status: 0 대기, 1 승인, 2 거절, 3 취소)
 @Getter
 public class MakeupResponse {
 

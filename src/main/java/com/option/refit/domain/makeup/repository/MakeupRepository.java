@@ -15,13 +15,13 @@ import java.util.List;
 @Repository
 public interface MakeupRepository extends JpaRepository<Makeup, Long> {
 
-    // 시간대별 정원 체크: 거절되지 않은(대기+승인) 신청 수
-    long countByClassIdAndScheduleIdAndMakeupTimeAndApprovalStatusNot(
-            Long classId, Long scheduleId, LocalDateTime makeupTime, MakeupApprovalStatus status);
+    // 시간대별 정원 체크: 제외할 상태(거절·취소)를 뺀 유효 신청(대기+승인) 수
+    long countByClassIdAndScheduleIdAndMakeupTimeAndApprovalStatusNotIn(
+            Long classId, Long scheduleId, LocalDateTime makeupTime, Collection<MakeupApprovalStatus> statuses);
 
-    // 같은 학생이 같은 수업 일정에 거절되지 않은 보강 신청을 이미 했는지 (중복 신청 방지)
-    boolean existsByStudentIdAndClassIdAndScheduleIdAndApprovalStatusNot(
-            Long studentId, Long classId, Long scheduleId, MakeupApprovalStatus status);
+    // 같은 학생이 같은 수업 일정에 유효한(거절·취소 제외) 보강 신청을 이미 했는지 (중복 신청 방지)
+    boolean existsByStudentIdAndClassIdAndScheduleIdAndApprovalStatusNotIn(
+            Long studentId, Long classId, Long scheduleId, Collection<MakeupApprovalStatus> statuses);
 
     // 학생이 해당 회차에 대해 받은 보강 중 특정 승인 상태인 건 (NFC 출석에서 승인된 보강 확인용)
     List<Makeup> findByStudentIdAndClassIdAndScheduleIdAndApprovalStatus(

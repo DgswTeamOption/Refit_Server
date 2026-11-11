@@ -40,7 +40,7 @@ public class NotificationEntity extends BaseEntity {
     @Column(name = "message", nullable = false, length = 255)
     private String message;
 
-    // 0: 보강 제안, 1: 보강 승인, 2: 보강 거절, 3: 공지 수신, 4: 수업 일정 변경 수신
+    // 0: 보강 제안, 1: 보강 승인, 2: 보강 거절, 3: 공지 수신, 4: 수업 일정 변경 수신, 5: 보강 신청 취소
     @Column(name = "notification_type", nullable = false, length = 1, columnDefinition = "CHAR(1)")
     private String notificationType;
 
