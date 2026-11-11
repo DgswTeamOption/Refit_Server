@@ -1,5 +1,8 @@
 package com.option.refit.domain.classroom.repository;
 
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Modifying;
 import com.option.refit.domain.classroom.entity.ClassRoomMemberEntity;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -39,4 +42,9 @@ public interface ClassRoomMemberRepository
     @EntityGraph(attributePaths = "user")
     List<ClassRoomMemberEntity>
     findAllByClassroom_IdAndLeftAtIsNullAndUser_DeletedAtIsNullOrderByUser_NameAsc(Long classroomId);
+
+    // 수업 삭제 시 해당 수업의 가입 기록(탈퇴 이력 포함)을 모두 삭제
+    @Modifying
+    @Query("DELETE FROM ClassRoomMemberEntity m WHERE m.classroom.id = :classroomId")
+    void deleteAllByClassroomId(@Param("classroomId") Long classroomId);
 }

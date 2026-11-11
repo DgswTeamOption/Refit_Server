@@ -75,4 +75,7 @@ public interface AbsenceRepository extends JpaRepository<Absence, Long> {
 
         LocalDate getLastAbsenceDate();
     }
+
+    // 수업 삭제 시 결석 신청을 소프트 삭제 (@SQLDelete 적용)
+    void deleteAllByClassId(Long classId);
 }

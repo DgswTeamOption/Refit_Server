@@ -1,5 +1,6 @@
 package com.option.refit.domain.makeup.repository;
 
+import org.springframework.data.jpa.repository.Modifying;
 import com.option.refit.domain.makeup.entity.Makeup;
 import com.option.refit.domain.makeup.entity.MakeupApprovalStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -67,4 +68,9 @@ public interface MakeupRepository extends JpaRepository<Makeup, Long> {
 
         long getMakeupCount();
     }
+
+    // 수업 삭제 시 해당 수업의 보강 신청을 모두 삭제
+    @Modifying
+    @Query("DELETE FROM Makeup m WHERE m.classId = :classId")
+    void deleteAllByClassId(@Param("classId") Long classId);
 }

@@ -37,4 +37,7 @@ public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Long> 
             @Param("now") LocalDateTime now,
             @Param("limit") LocalDateTime limit
     );
+
+    // 수업 삭제 시 회차를 소프트 삭제 (@SQLDelete 적용)
+    void deleteAllByClassId(Long classId);
 }
