@@ -5,6 +5,7 @@ import com.option.refit.domain.classroom.entity.ClassRoomEntity;
 import com.option.refit.domain.classroom.repository.ClassRoomMemberRepository;
 import com.option.refit.domain.classroom.repository.ClassRoomRepository;
 import com.option.refit.domain.classroom.service.ClassRoomHomeService;
+import com.option.refit.domain.file.service.FileUrlResolver;
 import com.option.refit.domain.schedule.dto.ScheduleResponse;
 import com.option.refit.domain.schedule.service.ScheduleGetService;
 import com.option.refit.domain.user.entity.User;
@@ -24,6 +25,7 @@ public class ClassRoomHomeServiceImpl implements ClassRoomHomeService {
     private final ClassRoomRepository classroomRepository;
     private final ClassRoomMemberRepository memberRepository;
     private final ScheduleGetService scheduleGetService;
+    private final FileUrlResolver fileUrlResolver;
 
     @Override
     @Transactional(readOnly = true)
@@ -60,6 +62,7 @@ public class ClassRoomHomeServiceImpl implements ClassRoomHomeService {
         return ClassRoomHomeResponse.from(
                 classroom,
                 memberCount,
+                fileUrlResolver.resolve(classroom.getBannerImage()),
                 calendar,
                 isTeacher
         );
