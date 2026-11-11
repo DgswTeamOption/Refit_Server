@@ -1,5 +1,6 @@
 package com.option.refit.domain.classroom.entity;
 
+import com.option.refit.domain.file.entity.FileEntity;
 import com.option.refit.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -38,6 +39,11 @@ public class ClassRoomEntity {
     @JoinColumn(name = "teacher_id", nullable = false)
     private User teacher;
 
+    // 수업 배너 이미지 (file 도메인에 업로드된 파일), 없으면 null
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "banner_image_id")
+    private FileEntity bannerImage;
+
     // 수업이 처음 생성된 시간을 자동으로 기록하여 저장
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -53,5 +59,10 @@ public class ClassRoomEntity {
     // 수업 엔티티 생성
     public static ClassRoomEntity create(String name, User teacher, String classCode) {
         return new ClassRoomEntity(name, teacher, classCode);
+    }
+
+    // 배너 이미지 교체 (null이면 배너 제거)
+    public void changeBannerImage(FileEntity bannerImage) {
+        this.bannerImage = bannerImage;
     }
 }

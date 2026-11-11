@@ -9,16 +9,18 @@ public record ClassRoomResponse(
         String name,
         String classCode,
         String teacherName,
+        String bannerImageUrl,
         LocalDateTime createdAt
 ) {
 
     // Entity → Response DTO 변환
-    public static ClassRoomResponse from(ClassRoomEntity classroom) {
+    public static ClassRoomResponse from(ClassRoomEntity classroom, String bannerImageUrl) {
         return new ClassRoomResponse(
                 classroom.getId(),
                 classroom.getName(),
                 classroom.getClassCode(),
                 classroom.getTeacher().getName(),
+                bannerImageUrl,
                 classroom.getCreatedAt()
         );
     }
