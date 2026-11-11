@@ -22,6 +22,10 @@ public interface MakeupRepository extends JpaRepository<Makeup, Long> {
     boolean existsByStudentIdAndClassIdAndScheduleIdAndApprovalStatusNot(
             Long studentId, Long classId, Long scheduleId, MakeupApprovalStatus status);
 
+    // 학생이 해당 회차에 대해 받은 보강 중 특정 승인 상태인 건 (NFC 출석에서 승인된 보강 확인용)
+    List<Makeup> findByStudentIdAndClassIdAndScheduleIdAndApprovalStatus(
+            Long studentId, Long classId, Long scheduleId, MakeupApprovalStatus status);
+
     // 보강 목록 조회: 승인 상태(선택), 학생(선택, 학생 본인 조회용)으로 필터링
     @Query("SELECT m FROM Makeup m WHERE m.classId = :classId " +
             "AND (:status IS NULL OR m.approvalStatus = :status) " +

@@ -27,4 +27,14 @@ public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Long> 
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );
+
+    // 출석 가능한 일정 조회: 아직 끝나지 않았고(endTime >= now), 시작 허용 시각(limit) 이전에 시작하는 일정
+    @Query("SELECT s FROM ScheduleEntity s WHERE s.classId = :classId AND s.studentId = :studentId " +
+            "AND s.endTime >= :now AND s.startTime <= :limit ORDER BY s.startTime ASC")
+    List<ScheduleEntity> findAttendable(
+            @Param("classId") Long classId,
+            @Param("studentId") Long studentId,
+            @Param("now") LocalDateTime now,
+            @Param("limit") LocalDateTime limit
+    );
 }
