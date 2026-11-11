@@ -19,6 +19,6 @@ public interface ClassRoomRepository
         boolean existsByClassCode(String classCode);
 
         // 특정 교사의 수업 목록 조회 시 교사 정보도 함께 조회
-        @EntityGraph(attributePaths = "teacher")
+        @EntityGraph(attributePaths = {"teacher", "bannerImage"})
         List<ClassRoomEntity> findAllByTeacher_IdOrderByCreatedAtDesc(Long teacherId);
 }

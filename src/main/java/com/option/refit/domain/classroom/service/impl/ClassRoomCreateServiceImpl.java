@@ -5,6 +5,8 @@ import com.option.refit.domain.classroom.dto.response.ClassRoomResponse;
 import com.option.refit.domain.classroom.repository.ClassRoomRepository;
 import com.option.refit.domain.classroom.service.ClassRoomCreateService;
 import com.option.refit.domain.classroom.service.ClassRoomCreateAttemptService;
+import com.option.refit.domain.classroom.service.ClassRoomBannerFileValidator;
+import com.option.refit.domain.file.entity.FileEntity;
 import com.option.refit.domain.user.entity.Role;
 import com.option.refit.domain.user.entity.User;
 import com.option.refit.global.error.classError.exception.ClassPermissionDeniedException;
@@ -20,6 +22,7 @@ public class ClassRoomCreateServiceImpl implements ClassRoomCreateService {
 
     private final ClassRoomRepository classroomRepository;
     private final ClassRoomCreateAttemptService createAttemptService;
+    private final ClassRoomBannerFileValidator bannerFileValidator;
 
     // 수업 생성 요청을 처리한다.
     @Override
@@ -32,6 +35,11 @@ public class ClassRoomCreateServiceImpl implements ClassRoomCreateService {
         if (user.getRole() != Role.TEACHER) {
             throw new ClassPermissionDeniedException();
         }
+
+        // 배너 이미지가 있으면 본인이 업로드한 파일인지 확인 (없으면 404, 타인 파일이면 403)
+        FileEntity bannerImage = request.bannerImageId() == null
+                ? null
+                : bannerFileValidator.getOwnedFile(request.bannerImageId(), user.getId());
 
         // 코드 중복으로 저장에 실패하면 최대 5번까지 재시도
         for (int attempt = 0; attempt < 5; attempt++) {
@@ -50,7 +58,7 @@ public class ClassRoomCreateServiceImpl implements ClassRoomCreateService {
             try {
                 // 별도 트랜잭션에서 수업 저장
                 return createAttemptService.create(
-                        request, user, classCode
+                        request, user, classCode, bannerImage
                 );
 
             } catch (DataIntegrityViolationException e) {

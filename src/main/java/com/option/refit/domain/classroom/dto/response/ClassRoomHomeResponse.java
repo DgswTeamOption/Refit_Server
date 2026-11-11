@@ -13,6 +13,7 @@ public record ClassRoomHomeResponse(
         String classCode,
         String teacherName,
         long memberCount,
+        String bannerImageUrl,
         LocalDateTime createdAt,
         List<ScheduleResponse> calendar
 ) {
@@ -20,6 +21,7 @@ public record ClassRoomHomeResponse(
     public static ClassRoomHomeResponse from(
             ClassRoomEntity classroom,
             long memberCount,
+            String bannerImageUrl,
             List<ScheduleResponse> calendar,
             boolean isTeacher
     ) {
@@ -29,6 +31,7 @@ public record ClassRoomHomeResponse(
                 isTeacher ? classroom.getClassCode() : null,
                 classroom.getTeacher().getName(),
                 memberCount,
+                bannerImageUrl,
                 classroom.getCreatedAt(),
                 calendar
         );

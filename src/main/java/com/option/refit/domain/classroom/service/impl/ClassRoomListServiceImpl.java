@@ -4,6 +4,7 @@ import com.option.refit.domain.classroom.dto.response.ClassRoomResponse;
 import com.option.refit.domain.classroom.repository.ClassRoomMemberRepository;
 import com.option.refit.domain.classroom.repository.ClassRoomRepository;
 import com.option.refit.domain.classroom.service.ClassRoomListService;
+import com.option.refit.domain.file.service.FileUrlResolver;
 import com.option.refit.domain.user.entity.Role;
 import com.option.refit.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,9 @@ public class ClassRoomListServiceImpl implements ClassRoomListService {
     // 학생이 참여 중인 수업 정보를 조회하기 위한 Repository
     private final ClassRoomMemberRepository memberRepository;
 
+    // 배너 이미지 URL 변환
+    private final FileUrlResolver fileUrlResolver;
+
     @Override
     @Transactional(readOnly = true)
     public List<ClassRoomResponse> getClassrooms(User user) {
@@ -35,7 +39,10 @@ public class ClassRoomListServiceImpl implements ClassRoomListService {
                     .stream()
 
                     // 조회한 수업 Entity를 응답 DTO로 변환
-                    .map(ClassRoomResponse::from)
+                    .map(classroom -> ClassRoomResponse.from(
+                            classroom,
+                            fileUrlResolver.resolve(classroom.getBannerImage())
+                    ))
 
                     // 변환된 수업 목록을 List로 반환
                     .toList();
@@ -48,7 +55,10 @@ public class ClassRoomListServiceImpl implements ClassRoomListService {
 
                 // 수업 참여 정보에서 수업 Entity를 가져와 응답 DTO로 변환
                 .map(member ->
-                        ClassRoomResponse.from(member.getClassroom())
+                        ClassRoomResponse.from(
+                                member.getClassroom(),
+                                fileUrlResolver.resolve(member.getClassroom().getBannerImage())
+                        )
                 )
 
                 // 변환된 수업 목록을 List로 반환

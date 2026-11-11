@@ -7,6 +7,7 @@ import com.option.refit.domain.classroom.entity.ClassRoomMemberEntity;
 import com.option.refit.domain.classroom.repository.ClassRoomMemberRepository;
 import com.option.refit.domain.classroom.repository.ClassRoomRepository;
 import com.option.refit.domain.classroom.service.ClassRoomJoinService;
+import com.option.refit.domain.file.service.FileUrlResolver;
 import com.option.refit.domain.user.entity.Role;
 import com.option.refit.domain.user.entity.User;
 import com.option.refit.global.error.classError.exception.AlreadyJoinedClassException;
@@ -25,6 +26,7 @@ public class ClassRoomJoinServiceImpl
 
     private final ClassRoomRepository classroomRepository;
     private final ClassRoomMemberRepository memberRepository;
+    private final FileUrlResolver fileUrlResolver;
 
     @Override
     @Transactional
@@ -74,6 +76,6 @@ public class ClassRoomJoinServiceImpl
             memberRepository.save(member);
         }
 
-        return ClassRoomResponse.from(classroom);
+        return ClassRoomResponse.from(classroom, fileUrlResolver.resolve(classroom.getBannerImage()));
     }
 }

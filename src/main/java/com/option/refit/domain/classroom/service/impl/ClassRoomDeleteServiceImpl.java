@@ -6,6 +6,8 @@ import com.option.refit.domain.classroom.entity.ClassRoomEntity;
 import com.option.refit.domain.classroom.repository.ClassRoomMemberRepository;
 import com.option.refit.domain.classroom.repository.ClassRoomRepository;
 import com.option.refit.domain.classroom.service.ClassRoomDeleteService;
+import com.option.refit.domain.file.entity.FileEntity;
+import com.option.refit.domain.file.service.FileDeleteService;
 import com.option.refit.domain.makeup.repository.MakeupAvailabilityRepository;
 import com.option.refit.domain.makeup.repository.MakeupRepository;
 import com.option.refit.domain.nfc.repository.NfcTagRepository;
@@ -38,6 +40,7 @@ public class ClassRoomDeleteServiceImpl implements ClassRoomDeleteService {
     private final AttendanceRepository attendanceRepository;
     private final NoticeRepository noticeRepository;
     private final NfcTagRepository nfcTagRepository;
+    private final FileDeleteService fileDeleteService;
 
     @Override
     @Transactional
@@ -72,6 +75,13 @@ public class ClassRoomDeleteServiceImpl implements ClassRoomDeleteService {
         scheduleRepository.deleteAllByClassId(classroomId);
         memberRepository.deleteAllByClassroomId(classroomId);
 
+        // 수업 행 삭제 후(FK 해소) 배너 파일도 함께 정리
+        FileEntity bannerImage = classroom.getBannerImage();
         classroomRepository.delete(classroom);
+
+        if (bannerImage != null) {
+            classroomRepository.flush();
+            fileDeleteService.deleteFile(bannerImage.getId(), user.getId());
+        }
     }
 }
