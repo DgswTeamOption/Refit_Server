@@ -63,4 +63,13 @@ public class NotificationEntity extends BaseEntity {
         this.message = message;
         this.notificationType = notificationType;
     }
+
+    // 읽음 처리. 이미 읽은 알림이면 최초 읽은 시각(readAt)을 유지한다.
+    public void markAsRead() {
+        if (this.isRead) {
+            return;
+        }
+        this.isRead = true;
+        this.readAt = LocalDateTime.now();
+    }
 }
