@@ -3,11 +3,14 @@ package com.option.refit.domain.attendance.service.impl;
 import com.option.refit.domain.attendance.dto.AttendanceResponse;
 import com.option.refit.domain.attendance.dto.AttendanceStatusResponse;
 import com.option.refit.domain.attendance.dto.AttendanceSummaryResponse;
+import com.option.refit.domain.attendance.dto.AttendanceUncheckedResponse;
 import com.option.refit.domain.attendance.entity.Attendance;
 import com.option.refit.domain.attendance.entity.AttendanceStatus;
 import com.option.refit.domain.attendance.repository.AttendanceRepository;
 import com.option.refit.domain.attendance.repository.AttendanceRepository.StatusCount;
 import com.option.refit.domain.attendance.service.AttendanceQueryService;
+import com.option.refit.domain.classroom.entity.ClassRoomMemberEntity;
+import com.option.refit.domain.classroom.repository.ClassRoomMemberRepository;
 import com.option.refit.domain.classroom.service.ClassRoomAccessValidator;
 import com.option.refit.domain.schedule.entity.ScheduleEntity;
 import com.option.refit.domain.schedule.repository.ScheduleRepository;
@@ -25,6 +28,7 @@ import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +45,7 @@ public class AttendanceQueryServiceImpl implements AttendanceQueryService {
     private final ScheduleRepository scheduleRepository;
     private final ClassRoomAccessValidator accessValidator;
     private final UserRepository userRepository;
+    private final ClassRoomMemberRepository memberRepository;
 
     @Override
     public List<AttendanceResponse> getMyAttendances(JwtPrincipal principal, Long classId, int year, int month) {
@@ -87,6 +92,36 @@ public class AttendanceQueryServiceImpl implements AttendanceQueryService {
     }
 
     @Override
+    public List<AttendanceUncheckedResponse> getUncheckedStudents(JwtPrincipal principal, Long classId, LocalDate date) {
+        requireTeacherRole(principal);
+        accessValidator.requireTeacher(classId, principal.userId());
+
+        // 그 날짜에 출석·지각으로 기록된 학생
+        List<Attendance> attendances = attendanceRepository.findByClassIdAndAttendanceDate(classId, date);
+        Set<Long> attended = new HashSet<>();
+        Set<Long> absent = new HashSet<>();
+        for (Attendance attendance : attendances) {
+            (attendance.getStatus() == AttendanceStatus.ABSENT ? absent : attended).add(attendance.getStudentId());
+        }
+
+        // 그 날짜에 일정이 잡힌 학생 (일정이 없는 수강생은 출석 대상이 아닐 수 있어 구분해서 내려준다)
+        Set<Long> scheduled = new HashSet<>();
+        scheduleRepository.findMonthlySchedules(classId, null, date.atStartOfDay(), date.atTime(LocalTime.MAX))
+                .forEach(schedule -> scheduled.add(schedule.getStudentId()));
+
+        // 현재 수강생 명단(left_at IS NULL)에서 출석·지각 기록이 없는 학생
+        return memberRepository.findAllByClassroom_IdAndLeftAtIsNull(classId).stream()
+                .map(ClassRoomMemberEntity::getUser)
+                .filter(user -> !attended.contains(user.getId()))
+                .map(user -> new AttendanceUncheckedResponse(
+                        user.getId(),
+                        user.getName(),
+                        absent.contains(user.getId()) ? AttendanceStatus.ABSENT.name() : AttendanceStatusResponse.NOT_CHECKED,
+                        scheduled.contains(user.getId())))
+                .toList();
+    }
+
+    @Override
     public List<AttendanceSummaryResponse> getMonthlySummary(
             JwtPrincipal principal, Long classId, int year, int month) {
         boolean isStudent = principal.role() == Role.STUDENT;
@@ -126,6 +161,7 @@ public class AttendanceQueryServiceImpl implements AttendanceQueryService {
                             yearMonth.getYear(),
                             yearMonth.getMonthValue(),
                             byStatus.getOrDefault(AttendanceStatus.PRESENT, 0L),
+                            byStatus.getOrDefault(AttendanceStatus.LATE, 0L),
                             byStatus.getOrDefault(AttendanceStatus.ABSENT, 0L));
                 })
                 .toList();
