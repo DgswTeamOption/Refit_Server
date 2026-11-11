@@ -49,3 +49,14 @@ file:
 # Google OAuth 클라이언트 ID (쉼표로 여러 개: 웹/iOS/Android). 앱이 보낸 ID Token의 aud 검증에 사용
 google:
   client-ids: ${GOOGLE_CLIENT_IDS:}
+
+# NFC 태그에 기록할 출석 주소의 기본 주소(웹 주소 또는 앱 딥링크). 서버가 ?token={token}을 붙여 내려준다.
+nfc:
+  attendance-url: ${NFC_ATTENDANCE_URL:http://localhost:5173/nfc/attendance}
+
+# NFC 출석 시간 정책 (분). 시작 early-minutes 전부터 출석 가능, 시작 후 late-after-minutes까지는 출석(PRESENT),
+# 그 이후 수업 종료까지는 지각(LATE), 종료 후에는 출석 불가. 보강은 보강 시작 시각 기준 + 원래 회차와 같은 수업 시간.
+attendance:
+  nfc:
+    early-minutes: ${ATTENDANCE_NFC_EARLY_MINUTES:10}
+    late-after-minutes: ${ATTENDANCE_NFC_LATE_AFTER_MINUTES:10}
