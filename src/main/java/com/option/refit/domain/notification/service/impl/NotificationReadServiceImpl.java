@@ -1,5 +1,6 @@
 package com.option.refit.domain.notification.service.impl;
 
+import com.option.refit.domain.notification.dto.NotificationReadAllResponse;
 import com.option.refit.domain.notification.dto.NotificationResponse;
 import com.option.refit.domain.notification.entity.NotificationEntity;
 import com.option.refit.domain.notification.repository.NotificationRepository;
@@ -9,6 +10,8 @@ import com.option.refit.global.error.notification.exception.NotificationNotFound
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -30,5 +33,11 @@ public class NotificationReadServiceImpl implements NotificationReadService {
 
         notification.markAsRead();
         return new NotificationResponse(notification);
+    }
+
+    @Override
+    public NotificationReadAllResponse readAllNotifications(Long userId) {
+        return new NotificationReadAllResponse(
+                notificationRepository.markAllAsRead(userId, LocalDateTime.now()));
     }
 }

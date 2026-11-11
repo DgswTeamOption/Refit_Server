@@ -42,10 +42,12 @@ public interface MakeupAvailabilityRepository extends JpaRepository<MakeupAvaila
     @Query("SELECT a FROM MakeupAvailability a " +
             "WHERE (:classId IS NULL OR a.classId = :classId) " +
             "AND (:teacherId IS NULL OR a.teacherId = :teacherId) " +
+            "AND (:scheduleId IS NULL OR a.scheduleId = :scheduleId) " +
             "ORDER BY a.makeupTime ASC, a.id ASC")
     List<MakeupAvailability> findList(
             @Param("classId") Long classId,
-            @Param("teacherId") Long teacherId
+            @Param("teacherId") Long teacherId,
+            @Param("scheduleId") Long scheduleId
     );
 
     // 수업 삭제 시 해당 수업의 보강 가능 시간을 모두 삭제

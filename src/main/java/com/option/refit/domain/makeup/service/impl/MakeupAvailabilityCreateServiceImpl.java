@@ -1,10 +1,12 @@
 package com.option.refit.domain.makeup.service.impl;
 
+import com.option.refit.domain.classroom.service.ClassRoomAccessValidator;
 import com.option.refit.domain.makeup.dto.MakeupAvailabilityRequest;
 import com.option.refit.domain.makeup.dto.MakeupAvailabilityResponse;
 import com.option.refit.domain.makeup.entity.MakeupAvailability;
 import com.option.refit.domain.makeup.repository.MakeupAvailabilityRepository;
 import com.option.refit.domain.makeup.service.MakeupAvailabilityCreateService;
+import com.option.refit.domain.makeup.service.MakeupAvailabilityResponseAssembler;
 import com.option.refit.domain.schedule.repository.ScheduleRepository;
 import com.option.refit.domain.user.entity.Role;
 import com.option.refit.global.error.makeupError.exception.DuplicateMakeupAvailabilityException;
@@ -27,8 +29,9 @@ public class MakeupAvailabilityCreateServiceImpl implements MakeupAvailabilityCr
 
     private final MakeupAvailabilityRepository availabilityRepository;
     private final ScheduleRepository scheduleRepository;
+    private final ClassRoomAccessValidator accessValidator;
+    private final MakeupAvailabilityResponseAssembler assembler;
 
-    // TODO: 수업 도메인 머지 후 "본인이 담당하는 수업인지" 검사 추가
     @Override
     @Transactional
     public List<MakeupAvailabilityResponse> createAvailabilities(JwtPrincipal principal, MakeupAvailabilityRequest request) {
@@ -37,7 +40,10 @@ public class MakeupAvailabilityCreateServiceImpl implements MakeupAvailabilityCr
             throw new RoleAccessDeniedException();
         }
 
-        // 존재하지 않는 수업 / 일정 (404)
+        // 존재하지 않는 수업 (404), 본인이 담당하는 수업이 아니면 (403)
+        accessValidator.requireTeacher(request.getClassId(), principal.userId());
+
+        // 존재하지 않는 일정 (404)
         scheduleRepository.findByIdAndClassId(request.getScheduleId(), request.getClassId())
                 .orElseThrow(ScheduleNotFoundException::new);
 
@@ -66,6 +72,6 @@ public class MakeupAvailabilityCreateServiceImpl implements MakeupAvailabilityCr
                                 .build())
                         .toList());
 
-        return saved.stream().map(MakeupAvailabilityResponse::new).toList();
+        return assembler.toResponses(saved);
     }
 }

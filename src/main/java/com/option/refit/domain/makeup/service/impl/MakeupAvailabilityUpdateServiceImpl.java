@@ -6,6 +6,7 @@ import com.option.refit.domain.makeup.entity.MakeupApprovalStatus;
 import com.option.refit.domain.makeup.entity.MakeupAvailability;
 import com.option.refit.domain.makeup.repository.MakeupAvailabilityRepository;
 import com.option.refit.domain.makeup.repository.MakeupRepository;
+import com.option.refit.domain.makeup.service.MakeupAvailabilityResponseAssembler;
 import com.option.refit.domain.makeup.service.MakeupAvailabilityUpdateService;
 import com.option.refit.domain.user.entity.Role;
 import com.option.refit.global.error.makeupError.exception.DuplicateMakeupAvailabilityException;
@@ -28,6 +29,7 @@ public class MakeupAvailabilityUpdateServiceImpl implements MakeupAvailabilityUp
 
     private final MakeupAvailabilityRepository availabilityRepository;
     private final MakeupRepository makeupRepository;
+    private final MakeupAvailabilityResponseAssembler assembler;
 
     @Override
     @Transactional
@@ -84,6 +86,6 @@ public class MakeupAvailabilityUpdateServiceImpl implements MakeupAvailabilityUp
             availability.changeCapacity(newCapacity);
         }
 
-        return new MakeupAvailabilityResponse(availability);
+        return assembler.toResponse(availability);
     }
 }

@@ -69,6 +69,30 @@ public interface MakeupRepository extends JpaRepository<Makeup, Long> {
         long getMakeupCount();
     }
 
+    // 보강 가능 시간별 신청 인원 집계 (상태별). 가능 시간 목록의 신청 인원·변경 가능 여부 계산용
+    @Query("SELECT m.classId AS classId, m.scheduleId AS scheduleId, m.makeupTime AS makeupTime, " +
+            "m.approvalStatus AS approvalStatus, COUNT(m) AS applyCount " +
+            "FROM Makeup m " +
+            "WHERE m.classId IN :classIds AND m.approvalStatus IN :statuses " +
+            "GROUP BY m.classId, m.scheduleId, m.makeupTime, m.approvalStatus")
+    List<AvailabilityApplyCount> countByAvailability(
+            @Param("classIds") Collection<Long> classIds,
+            @Param("statuses") Collection<MakeupApprovalStatus> statuses
+    );
+
+    // 가능 시간별 신청 인원 집계 프로젝션
+    interface AvailabilityApplyCount {
+        Long getClassId();
+
+        Long getScheduleId();
+
+        LocalDateTime getMakeupTime();
+
+        MakeupApprovalStatus getApprovalStatus();
+
+        long getApplyCount();
+    }
+
     // 수업 삭제 시 해당 수업의 보강 신청을 모두 삭제
     @Modifying
     @Query("DELETE FROM Makeup m WHERE m.classId = :classId")

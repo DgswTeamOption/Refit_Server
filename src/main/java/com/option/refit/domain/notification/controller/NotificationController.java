@@ -1,5 +1,6 @@
 package com.option.refit.domain.notification.controller;
 
+import com.option.refit.domain.notification.dto.NotificationReadAllResponse;
 import com.option.refit.domain.notification.dto.NotificationResponse;
 import com.option.refit.domain.notification.service.NotificationDeleteService;
 import com.option.refit.domain.notification.service.NotificationGetService;
@@ -36,6 +37,16 @@ public class NotificationController {
 
         return ApiResponse.ok(notificationGetService.getNotifications(
                 principal.userId(), pageable));
+    }
+
+    // 본인의 안 읽은 알림을 모두 읽음 처리 (여러 페이지에 걸쳐도 전체 대상). 변경된 개수 반환
+    @PatchMapping("/read-all")
+    public ApiResponse<NotificationReadAllResponse> readAllNotifications(
+            @AuthenticationPrincipal JwtPrincipal principal) {
+
+        validatePrincipal(principal);
+
+        return ApiResponse.ok(notificationReadService.readAllNotifications(principal.userId()));
     }
 
     // 본인 알림만 읽음 처리 (타인 알림 403, 없는 알림 404)

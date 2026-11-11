@@ -40,13 +40,15 @@ public class MakeupController {
         return ApiResponse.ok(availabilityCreateService.createAvailabilities(principal, request));
     }
 
-    // 보강 가능 시간 목록 조회 (로그인): class_id(수업별), teacher_id(선생님별) 중 하나 이상 필요
+    // 보강 가능 시간 목록 조회 (로그인): class_id(수업별), teacher_id(선생님별) 중 하나 이상 필요, schedule_id(선택)
+    // 담당 선생님 또는 참여 중인 학생만 조회 가능
     @GetMapping("/api/makeups/availability")
     public ApiResponse<List<MakeupAvailabilityResponse>> getAvailabilities(
             @AuthenticationPrincipal JwtPrincipal principal,
             @RequestParam(name = "class_id", required = false) Long classId,
-            @RequestParam(name = "teacher_id", required = false) Long teacherId) {
-        return ApiResponse.ok(availabilityGetService.getAvailabilities(principal, classId, teacherId));
+            @RequestParam(name = "teacher_id", required = false) Long teacherId,
+            @RequestParam(name = "schedule_id", required = false) Long scheduleId) {
+        return ApiResponse.ok(availabilityGetService.getAvailabilities(principal, classId, teacherId, scheduleId));
     }
 
     // 보강 가능 시간 수정 (등록한 선생님 본인)
