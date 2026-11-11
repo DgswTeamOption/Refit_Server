@@ -60,4 +60,9 @@ public class Makeup extends BaseEntity {
     public void reject() {
         this.approvalStatus = MakeupApprovalStatus.REJECTED;
     }
+
+    // 학생이 대기 중인 신청을 취소한다. 행은 삭제하지 않고 상태만 바꿔 이력(생성일시 등)을 유지한다.
+    public void cancel() {
+        this.approvalStatus = MakeupApprovalStatus.CANCELLED;
+    }
 }
