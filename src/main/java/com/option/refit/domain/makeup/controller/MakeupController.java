@@ -3,6 +3,9 @@ package com.option.refit.domain.makeup.controller;
 import com.option.refit.domain.makeup.dto.*;
 import com.option.refit.domain.makeup.service.MakeupApproveService;
 import com.option.refit.domain.makeup.service.MakeupAvailabilityCreateService;
+import com.option.refit.domain.makeup.service.MakeupAvailabilityDeleteService;
+import com.option.refit.domain.makeup.service.MakeupAvailabilityGetService;
+import com.option.refit.domain.makeup.service.MakeupAvailabilityUpdateService;
 import com.option.refit.domain.makeup.service.MakeupCancelService;
 import com.option.refit.domain.makeup.service.MakeupGetService;
 import com.option.refit.domain.makeup.service.MakeupRequestService;
@@ -21,6 +24,9 @@ import java.util.List;
 public class MakeupController {
 
     private final MakeupAvailabilityCreateService availabilityCreateService;
+    private final MakeupAvailabilityGetService availabilityGetService;
+    private final MakeupAvailabilityUpdateService availabilityUpdateService;
+    private final MakeupAvailabilityDeleteService availabilityDeleteService;
     private final MakeupRequestService makeupRequestService;
     private final MakeupApproveService makeupApproveService;
     private final MakeupCancelService makeupCancelService;
@@ -32,6 +38,33 @@ public class MakeupController {
             @AuthenticationPrincipal JwtPrincipal principal,
             @Valid @RequestBody MakeupAvailabilityRequest request) {
         return ApiResponse.ok(availabilityCreateService.createAvailabilities(principal, request));
+    }
+
+    // 보강 가능 시간 목록 조회 (로그인): class_id(수업별), teacher_id(선생님별) 중 하나 이상 필요
+    @GetMapping("/api/makeups/availability")
+    public ApiResponse<List<MakeupAvailabilityResponse>> getAvailabilities(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @RequestParam(name = "class_id", required = false) Long classId,
+            @RequestParam(name = "teacher_id", required = false) Long teacherId) {
+        return ApiResponse.ok(availabilityGetService.getAvailabilities(principal, classId, teacherId));
+    }
+
+    // 보강 가능 시간 수정 (등록한 선생님 본인)
+    @PatchMapping("/api/makeups/availability/{availabilityId}")
+    public ApiResponse<MakeupAvailabilityResponse> updateAvailability(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable Long availabilityId,
+            @Valid @RequestBody MakeupAvailabilityUpdateRequest request) {
+        return ApiResponse.ok(availabilityUpdateService.updateAvailability(principal, availabilityId, request));
+    }
+
+    // 보강 가능 시간 삭제 (등록한 선생님 본인)
+    @DeleteMapping("/api/makeups/availability/{availabilityId}")
+    public ApiResponse<Void> deleteAvailability(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable Long availabilityId) {
+        availabilityDeleteService.deleteAvailability(principal, availabilityId);
+        return ApiResponse.ok();
     }
 
     // 보강 일정 선택 및 신청 (학생)
