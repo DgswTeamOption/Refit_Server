@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,7 @@ public class SwaggerConfig {
                 .name("Authorization");
 
         return new OpenAPI()
+                .addServersItem(new Server().url("https://refit.team").description("운영 서버"))
                 .info(new Info()
                         .title("Refit API")
                         .description("Refit 백엔드 API 문서")

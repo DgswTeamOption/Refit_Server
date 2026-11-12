@@ -39,7 +39,7 @@ public class FileUploadServiceImpl implements FileUploadService {
             FileRepository fileRepository,
             UserRepository userRepository,
             @Value("${file.upload-dir:${user.home}/uploads}") String uploadDir,
-            @Value("${file.base-url:http://localhost:8080}") String baseUrl
+            @Value("${file.base-url:https://refit.team}") String baseUrl
     ) {
         this.fileRepository = fileRepository;
         this.userRepository = userRepository;

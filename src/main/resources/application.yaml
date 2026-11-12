@@ -1,3 +1,7 @@
+server:
+  # 리버스 프록시(HTTPS 종단) 뒤에서 X-Forwarded-* 헤더를 신뢰해 https 기준으로 URL 생성 (Swagger 등)
+  forward-headers-strategy: framework
+
 spring:
   config:
     import: optional:file:.env[.properties]
@@ -49,7 +53,7 @@ jwt:
 
 # 쉼표로 여러 개 지정. 배포 시 CORS_ALLOWED_ORIGINS 환경변수로 덮어씀
 cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:8081,http://localhost:19006}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://refit.team,https://www.refit.team}
 
 google:
   client-ids: ${GOOGLE_CLIENT_IDS}
@@ -57,11 +61,11 @@ google:
 # 업로드 이미지 저장 경로와 외부에서 접근할 때의 기본 주소
 file:
   upload-dir: ${FILE_UPLOAD_DIR:${user.home}/uploads}
-  base-url: ${FILE_BASE_URL:http://localhost:8080}
+  base-url: ${FILE_BASE_URL:https://refit.team}
 
 # NFC 태그에 기록할 출석 주소의 기본 주소(웹 주소 또는 앱 딥링크). 서버가 ?token={token}을 붙여 내려준다.
 nfc:
-  attendance-url: ${NFC_ATTENDANCE_URL:http://localhost:5173/nfc/attendance}
+  attendance-url: ${NFC_ATTENDANCE_URL:https://refit.team/nfc/attendance}
 
 # NFC 출석 시간 정책 (분). 시작 early-minutes 전부터 출석 가능, 시작 후 late-after-minutes까지는 출석(PRESENT),
 # 그 이후 수업 종료까지는 지각(LATE), 종료 후에는 출석 불가. 보강은 보강 시작 시각 기준 + 원래 회차와 같은 수업 시간.
