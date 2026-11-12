@@ -67,6 +67,13 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
+### API 서버 주소 (운영)
+
+- Base URL: `https://refit.team` (HTTPS 전용, 포트 번호 없음. 기존 IP/http 주소 사용 금지)
+- Swagger: https://refit.team/swagger-ui/index.html
+- CORS 허용 출처: `https://refit.team`, `https://www.refit.team` (다른 도메인에서 호스팅하면 `CORS_ALLOWED_ORIGINS`에 추가)
+- 전체 환경변수 목록은 `.env.example` 참고
+
 ### 2. Redis 설치 및 실행
 
 >  Redis가 실행 중이지 않으면 앱 구동이 실패합니다.

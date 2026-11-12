@@ -11,7 +11,7 @@ public class FileUrlResolver {
 
     private final String baseUrl;
 
-    public FileUrlResolver(@Value("${file.base-url:https://refit.team}") String baseUrl) {
+    public FileUrlResolver(@Value("${file.base-url:http://localhost:8080}") String baseUrl) {
         this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
     }
 
