@@ -71,7 +71,14 @@ public class User {
         this.profileImageUrl = profileImageUrl;
     }
 
+    // 탈퇴: 이메일을 해제해서 같은 이메일로 다시 가입할 수 있게 한다 (이메일 컬럼은 unique)
     public void delete() {
         this.deletedAt = LocalDate.now();
+        releaseEmail();
+    }
+
+    // 탈퇴 계정의 이메일을 비식별 값으로 바꾼다. 이메일이 해제되기 전에 탈퇴한 기존 계정에도 쓴다
+    public void releaseEmail() {
+        this.emailId = "deleted_" + this.id + "@deleted.invalid";
     }
 }
