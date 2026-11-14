@@ -9,7 +9,6 @@ import com.option.refit.domain.email.dto.request.EmailVerifyCodeRequest;
 import com.option.refit.domain.email.service.EmailVerifyCodeService;
 import com.option.refit.domain.user.entity.User;
 import com.option.refit.domain.user.repository.UserRepository;
-import com.option.refit.global.error.authError.exception.InactiveUserException;
 import com.option.refit.global.error.userError.exception.UserNotFoundException;
 import com.option.refit.global.google.GoogleIdTokenVerifier;
 import lombok.RequiredArgsConstructor;
@@ -36,12 +35,9 @@ public class AuthLoginServiceImpl implements AuthLoginService {
         return issueFor(googleIdTokenVerifier.verify(request.idToken()).email());
     }
 
-    // 가입되지 않은 이메일은 404 → 앱이 회원가입(역할 선택) 화면으로 안내
+    // 가입되지 않았거나 탈퇴한 이메일은 404 → 앱이 회원가입(역할 선택) 화면으로 안내
     private TokenResponse issueFor(String email) {
-        User user = userRepository.findByEmailId(email).orElseThrow(UserNotFoundException::new);
-        if (user.getDeletedAt() != null) {
-            throw new InactiveUserException();
-        }
+        User user = userRepository.findByEmailIdAndDeletedAtIsNull(email).orElseThrow(UserNotFoundException::new);
         return tokenIssuer.issue(user);
     }
 }

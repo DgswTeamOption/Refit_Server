@@ -31,10 +31,11 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
     @Transactional
     public RegisterResponse registerByEmail(EmailRegisterRequest request) {
         // 중복 가입이면 인증코드를 소모하지 않도록 먼저 확인
-        if (userRepository.existsByEmailId(request.emailId())) {
+        if (userRepository.existsByEmailIdAndDeletedAtIsNull(request.emailId())) {
             throw new DuplicateEmailException();
         }
         emailVerifyCodeService.verifyCode(new EmailVerifyCodeRequest(request.emailId(), request.verificationToken()));
+        releaseDeletedEmail(request.emailId());
         return create(request.emailId(), request.name(), request.role(), null);
     }
 
@@ -42,14 +43,25 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
     @Transactional
     public RegisterResponse registerByGoogle(GoogleRegisterRequest request) {
         GoogleUserInfo info = googleIdTokenVerifier.verify(request.idToken());
-        if (userRepository.existsByEmailId(info.email())) {
+        if (userRepository.existsByEmailIdAndDeletedAtIsNull(info.email())) {
             throw new DuplicateEmailException();
         }
+        releaseDeletedEmail(info.email());
         String name = info.name() == null || info.name().isBlank() ? info.email().split("@")[0] : info.name();
         if (name.length() > MAX_NAME_LENGTH) {
             name = name.substring(0, MAX_NAME_LENGTH);
         }
         return create(info.email(), name, request.role(), info.pictureUrl());
+    }
+
+    // 이메일이 해제되기 전에 탈퇴한 계정이 이메일을 쥐고 있으면 비식별 값으로 바꿔서 재가입을 허용한다
+    private void releaseDeletedEmail(String email) {
+        userRepository.findByEmailId(email)
+                .filter(user -> user.getDeletedAt() != null) // 활성 계정은 절대 건드리지 않는다
+                .ifPresent(user -> {
+                    user.releaseEmail();
+                    userRepository.saveAndFlush(user);
+                });
     }
 
     private RegisterResponse create(String email, String name, Role role, String profileImageUrl) {
