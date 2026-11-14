@@ -1,6 +1,7 @@
 package com.option.refit.global.error;
 
 import com.option.refit.global.error.fileError.FileErrorCode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -13,6 +14,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice // 전역적으로 예외를 처리하기 위해 사용
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class) // Controller에 발생하는 에러 메서드로 처리
@@ -71,6 +73,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
+        log.error("처리되지 않은 예외", e);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, "오류가 발생했습니다"));
