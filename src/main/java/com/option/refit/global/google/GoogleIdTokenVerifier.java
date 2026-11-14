@@ -3,6 +3,7 @@ package com.option.refit.global.google;
 import com.option.refit.global.error.authError.exception.InvalidGoogleTokenException;
 import java.util.Arrays;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -15,6 +16,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 
 // 앱이 Google 로그인으로 받은 ID Token을 검증(서명·만료·issuer·audience·이메일 인증 여부)하고 사용자 정보를 꺼낸다
+@Slf4j
 @Component
 public class GoogleIdTokenVerifier {
 
@@ -26,11 +28,15 @@ public class GoogleIdTokenVerifier {
     public GoogleIdTokenVerifier(@Value("${google.client-ids:}") String clientIds) {
         List<String> audiences = Arrays.stream(clientIds.split(","))
                 .map(String::trim).filter(s -> !s.isEmpty()).toList();
+        log.info("[google] 허용 클라이언트 ID {}개 로드", audiences.size());
 
         NimbusJwtDecoder nimbus = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).build();
         OAuth2TokenValidator<Jwt> claims = jwt -> {
             boolean issuerOk = jwt.getIssuer() != null && ISSUERS.contains(jwt.getIssuer().toString());
             boolean audienceOk = jwt.getAudience().stream().anyMatch(audiences::contains);
+            if (!issuerOk || !audienceOk) {
+                log.warn("[google] 토큰 거부 issuer={} aud={} (허용 aud {}개)", jwt.getIssuer(), jwt.getAudience(), audiences.size());
+            }
             return issuerOk && audienceOk
                     ? OAuth2TokenValidatorResult.success()
                     : OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token"));
@@ -44,6 +50,7 @@ public class GoogleIdTokenVerifier {
         try {
             jwt = decoder.decode(idToken);
         } catch (RuntimeException e) {
+            log.warn("[google] ID 토큰 검증 실패: {}", e.getMessage());
             throw new InvalidGoogleTokenException(e);
         }
 
