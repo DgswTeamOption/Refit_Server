@@ -11,6 +11,7 @@ import com.option.refit.domain.user.entity.User;
 import com.option.refit.domain.user.repository.UserRepository;
 import com.option.refit.global.error.userError.exception.UserNotFoundException;
 import com.option.refit.global.google.GoogleIdTokenVerifier;
+import com.option.refit.global.jwt.ClientType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,20 +25,20 @@ public class AuthLoginServiceImpl implements AuthLoginService {
     private final AuthTokenIssuer tokenIssuer;
 
     @Override
-    public TokenResponse loginByEmail(EmailLoginRequest request) {
+    public TokenResponse loginByEmail(EmailLoginRequest request, ClientType client) {
         // 코드 검증을 먼저 해서, 코드 없이 가입 여부를 알아내지 못하게 한다
         emailVerifyCodeService.verifyCode(new EmailVerifyCodeRequest(request.emailId(), request.verificationToken()));
-        return issueFor(request.emailId());
+        return issueFor(request.emailId(), client);
     }
 
     @Override
-    public TokenResponse loginByGoogle(GoogleLoginRequest request) {
-        return issueFor(googleIdTokenVerifier.verify(request.idToken()).email());
+    public TokenResponse loginByGoogle(GoogleLoginRequest request, ClientType client) {
+        return issueFor(googleIdTokenVerifier.verify(request.idToken()).email(), client);
     }
 
     // 가입되지 않았거나 탈퇴한 이메일은 404 → 앱이 회원가입(역할 선택) 화면으로 안내
-    private TokenResponse issueFor(String email) {
+    private TokenResponse issueFor(String email, ClientType client) {
         User user = userRepository.findByEmailIdAndDeletedAtIsNull(email).orElseThrow(UserNotFoundException::new);
-        return tokenIssuer.issue(user);
+        return tokenIssuer.issue(user, client);
     }
 }

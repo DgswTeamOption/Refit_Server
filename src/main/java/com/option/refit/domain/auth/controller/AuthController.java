@@ -4,6 +4,7 @@ import com.option.refit.domain.auth.dto.request.EmailLoginRequest;
 import com.option.refit.domain.auth.dto.request.EmailRegisterRequest;
 import com.option.refit.domain.auth.dto.request.GoogleLoginRequest;
 import com.option.refit.domain.auth.dto.request.GoogleRegisterRequest;
+import com.option.refit.domain.auth.dto.request.RefreshTokenRequest;
 import com.option.refit.domain.auth.dto.response.RegisterResponse;
 import com.option.refit.domain.auth.dto.response.TokenResponse;
 import com.option.refit.domain.auth.service.AuthLoginService;
@@ -11,6 +12,7 @@ import com.option.refit.domain.auth.service.AuthRegisterService;
 import com.option.refit.domain.auth.service.AuthTokenService;
 import com.option.refit.global.common.ApiResponse;
 import com.option.refit.global.error.jwtError.exception.MissingTokenException;
+import com.option.refit.global.jwt.ClientType;
 import com.option.refit.global.jwt.RefreshTokenCookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -30,7 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private static final String CLIENT_HEADER = "X-Client";
-    private static final String WEB_CLIENT = "web";
 
     private final AuthRegisterService registerService;
     private final AuthLoginService loginService;
@@ -46,9 +47,10 @@ public class AuthController {
     @PostMapping("/login")
     public ApiResponse<TokenResponse> login(
             @Valid @RequestBody EmailLoginRequest request,
-            @RequestHeader(value = CLIENT_HEADER, required = false) String client,
+            @RequestHeader(value = CLIENT_HEADER, required = false) String clientHeader,
             HttpServletResponse response) {
-        return ApiResponse.ok(respond(loginService.loginByEmail(request), client, response));
+        ClientType client = ClientType.from(clientHeader);
+        return ApiResponse.ok(respond(loginService.loginByEmail(request, client), client, response));
     }
 
     @PostMapping("/google/register")
@@ -60,37 +62,54 @@ public class AuthController {
     @PostMapping("/google/login")
     public ApiResponse<TokenResponse> googleLogin(
             @Valid @RequestBody GoogleLoginRequest request,
-            @RequestHeader(value = CLIENT_HEADER, required = false) String client,
+            @RequestHeader(value = CLIENT_HEADER, required = false) String clientHeader,
             HttpServletResponse response) {
-        return ApiResponse.ok(respond(loginService.loginByGoogle(request), client, response));
+        ClientType client = ClientType.from(clientHeader);
+        return ApiResponse.ok(respond(loginService.loginByGoogle(request, client), client, response));
     }
 
-    // 웹 전용: 쿠키의 Refresh Token으로 Access Token 재발급 (Refresh Token도 쿠키로 교체)
+    // Access Token 재발급 (Refresh Token도 교체). 웹: 쿠키로 받고 쿠키로 전달 / 앱: body로 받고 body로 전달
     @PostMapping("/refresh")
     public ApiResponse<TokenResponse> refresh(
-            @CookieValue(name = RefreshTokenCookie.NAME, required = false) String refreshToken,
+            @RequestHeader(value = CLIENT_HEADER, required = false) String clientHeader,
+            @CookieValue(name = RefreshTokenCookie.NAME, required = false) String cookieToken,
+            @RequestBody(required = false) RefreshTokenRequest body,
             HttpServletResponse response) {
+        ClientType client = ClientType.from(clientHeader);
+        String refreshToken = resolveRefreshToken(client, cookieToken, body);
         if (refreshToken == null) {
             throw new MissingTokenException();
         }
-        return ApiResponse.ok(respond(tokenService.refresh(refreshToken), WEB_CLIENT, response));
+        return ApiResponse.ok(respond(tokenService.refresh(refreshToken, client), client, response));
     }
 
-    // 웹 전용: Redis의 Refresh Token 삭제 + 쿠키 만료
+    // Redis의 Refresh Token 삭제. 웹이면 쿠키도 만료시킴
     @PostMapping("/logout")
     public ApiResponse<Void> logout(
-            @CookieValue(name = RefreshTokenCookie.NAME, required = false) String refreshToken,
+            @RequestHeader(value = CLIENT_HEADER, required = false) String clientHeader,
+            @CookieValue(name = RefreshTokenCookie.NAME, required = false) String cookieToken,
+            @RequestBody(required = false) RefreshTokenRequest body,
             HttpServletResponse response) {
+        ClientType client = ClientType.from(clientHeader);
+        String refreshToken = resolveRefreshToken(client, cookieToken, body);
         if (refreshToken != null) {
-            tokenService.logout(refreshToken);
+            tokenService.logout(refreshToken, client);
         }
-        refreshTokenCookie.expire(response);
+        if (client == ClientType.WEB) {
+            refreshTokenCookie.expire(response);
+        }
         return ApiResponse.ok();
     }
 
-    // X-Client: web 이면 Refresh Token을 쿠키로 내리고 body에서는 제외, 그 외(모바일 등)는 기존처럼 body로 전달
-    private TokenResponse respond(TokenResponse tokens, String client, HttpServletResponse response) {
-        if (!WEB_CLIENT.equalsIgnoreCase(client)) {
+    // 웹은 쿠키, 앱은 body에서 Refresh Token을 꺼낸다. 없거나 비어 있으면 null
+    private String resolveRefreshToken(ClientType client, String cookieToken, RefreshTokenRequest body) {
+        String token = client == ClientType.WEB ? cookieToken : (body == null ? null : body.refreshToken());
+        return token == null || token.isBlank() ? null : token;
+    }
+
+    // 웹이면 Refresh Token을 쿠키로 내리고 body에서는 제외, 앱이면 body로 전달
+    private TokenResponse respond(TokenResponse tokens, ClientType client, HttpServletResponse response) {
+        if (client != ClientType.WEB) {
             return tokens;
         }
         refreshTokenCookie.add(response, tokens.refreshToken());
