@@ -13,7 +13,7 @@ public class ScheduleRequest {
     // 일정 등록: student_id, start_time, end_time
     @Getter
     @NoArgsConstructor
-    public static class Create {
+    public static class ScheduleCreateRequest {
         @JsonProperty("student_id")
         @NotNull(message = "학생은 필수입니다.")
         private Long studentId;
@@ -32,7 +32,7 @@ public class ScheduleRequest {
     // 일정 수정: start_time, end_time
     @Getter
     @NoArgsConstructor
-    public static class Update {
+    public static class ScheduleUpdateRequest {
         @JsonProperty("start_time")
         @NotNull(message = "시작 시각은 필수입니다.")
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
