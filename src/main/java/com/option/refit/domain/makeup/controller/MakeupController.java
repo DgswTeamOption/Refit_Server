@@ -13,6 +13,7 @@ import com.option.refit.global.common.ApiResponse;
 import com.option.refit.global.jwt.JwtPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +35,7 @@ public class MakeupController {
 
     // 보강 가능 시간 등록 (선생님)
     @PostMapping("/api/makeups/availability")
+    @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<List<MakeupAvailabilityResponse>> createAvailability(
             @AuthenticationPrincipal JwtPrincipal principal,
             @Valid @RequestBody MakeupAvailabilityRequest request) {
