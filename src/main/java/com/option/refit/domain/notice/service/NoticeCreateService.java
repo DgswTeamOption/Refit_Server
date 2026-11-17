@@ -9,6 +9,6 @@ public interface NoticeCreateService {
             Long classId,
             Long userId,
             Role role,
-            NoticeRequest.Create request
+            NoticeRequest.NoticeCreateRequest request
     );
 }

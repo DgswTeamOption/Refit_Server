@@ -26,7 +26,7 @@ public class NoticeCreateServiceImpl implements NoticeCreateService {
             Long classId,
             Long userId,
             Role role,
-            NoticeRequest.Create request
+            NoticeRequest.NoticeCreateRequest request
     ) {
         ClassRoomEntity classroom = classRoomRepository.findById(classId)
                 .orElseThrow(ClassNotFoundException::new);
