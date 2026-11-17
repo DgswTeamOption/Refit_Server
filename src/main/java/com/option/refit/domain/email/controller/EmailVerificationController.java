@@ -6,6 +6,7 @@ import com.option.refit.domain.email.dto.response.EmailVerificationResponse;
 import com.option.refit.domain.email.service.EmailSendCodeService;
 import com.option.refit.domain.email.service.EmailVerifyCodeService;
 import com.option.refit.global.common.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user/email")
+@SecurityRequirements // 로그인 전 호출하는 공개 API라 전역 bearerAuth 해제
 public class EmailVerificationController {
 
     private final EmailSendCodeService emailSendCodeService;
