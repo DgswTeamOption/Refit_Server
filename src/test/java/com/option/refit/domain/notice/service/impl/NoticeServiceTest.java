@@ -65,7 +65,7 @@ class NoticeServiceTest {
 
     @Test
     void 담당교사는공지를생성할수있다() {
-        NoticeRequest.Create request =
+        NoticeRequest.NoticeCreateRequest request =
                 createRequest("공지 제목", "공지 내용");
         NoticeEntity saved =
                 notice(1L, 10L, "공지 제목", "공지 내용");
@@ -96,7 +96,7 @@ class NoticeServiceTest {
 
     @Test
     void 학생은공지를생성할수없다() {
-        NoticeRequest.Create request =
+        NoticeRequest.NoticeCreateRequest request =
                 createRequest("공지 제목", "공지 내용");
         stubClassExists(1L);
 
@@ -115,7 +115,7 @@ class NoticeServiceTest {
 
     @Test
     void 다른반의교사는공지를생성할수없다() {
-        NoticeRequest.Create request =
+        NoticeRequest.NoticeCreateRequest request =
                 createRequest("공지 제목", "공지 내용");
         stubClassTeacher(1L, 20L);
 
@@ -222,7 +222,7 @@ class NoticeServiceTest {
         when(noticeRepository.findByIdAndClassId(5L, 1L))
                 .thenReturn(Optional.of(entity));
 
-        NoticeRequest.Update request =
+        NoticeRequest.NoticeUpdateRequest request =
                 updateRequest("새 제목", null);
 
         updateService.updateNotice(1L, 5L, 10L, request);
@@ -316,23 +316,23 @@ class NoticeServiceTest {
                 .build();
     }
 
-    private static NoticeRequest.Create createRequest(
+    private static NoticeRequest.NoticeCreateRequest createRequest(
             String title,
             String content
     ) {
-        NoticeRequest.Create request =
-                new NoticeRequest.Create();
+        NoticeRequest.NoticeCreateRequest request =
+                new NoticeRequest.NoticeCreateRequest();
         ReflectionTestUtils.setField(request, "title", title);
         ReflectionTestUtils.setField(request, "content", content);
         return request;
     }
 
-    private static NoticeRequest.Update updateRequest(
+    private static NoticeRequest.NoticeUpdateRequest updateRequest(
             String title,
             String content
     ) {
-        NoticeRequest.Update request =
-                new NoticeRequest.Update();
+        NoticeRequest.NoticeUpdateRequest request =
+                new NoticeRequest.NoticeUpdateRequest();
         ReflectionTestUtils.setField(request, "title", title);
         ReflectionTestUtils.setField(request, "content", content);
         return request;

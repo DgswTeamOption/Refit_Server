@@ -8,6 +8,6 @@ public interface NoticeUpdateService {
             Long classId,
             Long noticeId,
             Long userId,
-            NoticeRequest.Update request
+            NoticeRequest.NoticeUpdateRequest request
     );
 }

@@ -4,5 +4,5 @@ import com.option.refit.domain.schedule.dto.ScheduleRequest;
 import com.option.refit.global.jwt.JwtPrincipal;
 
 public interface ScheduleCreateService {
-    Long createSchedule(JwtPrincipal principal, Long classId, ScheduleRequest.Create request);
+    Long createSchedule(JwtPrincipal principal, Long classId, ScheduleRequest.ScheduleCreateRequest request);
 }

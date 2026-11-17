@@ -61,7 +61,7 @@ public class NoticeController {
     public ApiResponse<Long> createNotice(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable Long classId,
-            @Valid @RequestBody NoticeRequest.Create request
+            @Valid @RequestBody NoticeRequest.NoticeCreateRequest request
     ) {
         Long noticeId = noticeCreateService.createNotice(
                 classId,
@@ -77,7 +77,7 @@ public class NoticeController {
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable Long classId,
             @PathVariable Long noticeId,
-            @Valid @RequestBody NoticeRequest.Update request
+            @Valid @RequestBody NoticeRequest.NoticeUpdateRequest request
     ) {
         noticeUpdateService.updateNotice(
                 classId,

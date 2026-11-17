@@ -22,7 +22,7 @@ public class NoticeUpdateServiceImpl implements NoticeUpdateService {
             Long classId,
             Long noticeId,
             Long userId,
-            NoticeRequest.Update request
+            NoticeRequest.NoticeUpdateRequest request
     ) {
         NoticeEntity notice = noticeRepository.findByIdAndClassId(noticeId, classId)
                 .orElseThrow(NoticeNotFoundException::new);

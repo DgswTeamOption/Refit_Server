@@ -52,7 +52,7 @@ public class ScheduleController {
     public ApiResponse<Long> createSchedule(
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable Long classId,
-            @Valid @RequestBody ScheduleRequest.Create request) {
+            @Valid @RequestBody ScheduleRequest.ScheduleCreateRequest request) {
         requireTeacher(principal);
         return ApiResponse.ok(scheduleCreateService.createSchedule(principal, classId, request));
     }
@@ -63,7 +63,7 @@ public class ScheduleController {
             @AuthenticationPrincipal JwtPrincipal principal,
             @PathVariable Long classId,
             @PathVariable Long scheduleId,
-            @Valid @RequestBody ScheduleRequest.Update request) {
+            @Valid @RequestBody ScheduleRequest.ScheduleUpdateRequest request) {
         requireTeacher(principal);
         scheduleUpdateService.updateSchedule(principal, classId, scheduleId, request);
         return ApiResponse.ok();
