@@ -45,7 +45,9 @@ public class NfcService {
                 .name(request.getName().trim())
                 .build();
 
-        return toResponse(nfcTagRepository.save(tag));
+        NfcTag saved = nfcTagRepository.save(tag);
+        // 토큰과 출석 URL은 등록 직후 응답에서만 내려준다 (이후 조회 응답에는 포함하지 않음)
+        return NfcTagResponse.withCredentials(saved, buildAttendanceUrl(saved));
     }
 
     @Transactional(readOnly = true)
@@ -151,10 +153,13 @@ public class NfcService {
     }
 
     private NfcTagResponse toResponse(NfcTag tag) {
-        String url = UriComponentsBuilder.fromUriString(attendanceUrl)
+        return NfcTagResponse.of(tag);
+    }
+
+    private String buildAttendanceUrl(NfcTag tag) {
+        return UriComponentsBuilder.fromUriString(attendanceUrl)
                 .queryParam("token", tag.getToken())
                 .build()
                 .toUriString();
-        return new NfcTagResponse(tag, url);
     }
 }
