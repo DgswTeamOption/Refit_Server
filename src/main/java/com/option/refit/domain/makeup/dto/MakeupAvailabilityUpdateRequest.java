@@ -1,6 +1,7 @@
 package com.option.refit.domain.makeup.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ public class MakeupAvailabilityUpdateRequest {
 
     // 형식: 2026-10-25T14:00:00
     @JsonProperty("makeup_time")
+    @Schema(description = "변경할 보강 가능 시간 (수정은 1개만)", example = "2026-10-25T14:00:00")
     private LocalDateTime makeupTime;
 
     @Min(value = 1, message = "정원은 1명 이상이어야 합니다.")
