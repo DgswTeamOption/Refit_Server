@@ -9,6 +9,7 @@ import com.option.refit.global.common.ApiResponse;
 import com.option.refit.global.error.jwtError.exception.MissingTokenException;
 import com.option.refit.global.jwt.JwtPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -28,6 +29,7 @@ public class NotificationController {
     @GetMapping
     public ApiResponse<Page<NotificationResponse>> getNotifications(
             @AuthenticationPrincipal JwtPrincipal principal,
+            @ParameterObject
             @PageableDefault(size = 20,
                     sort = {"createdAt", "id"},
                     direction = Sort.Direction.DESC)
