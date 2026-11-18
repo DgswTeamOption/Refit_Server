@@ -1,5 +1,6 @@
 package com.option.refit.global.error;
 
+import com.option.refit.global.error.commonError.CommonErrorCode;
 import com.option.refit.global.error.fileError.FileErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import java.util.List;
 
 @RestControllerAdvice // 전역적으로 예외를 처리하기 위해 사용
 @Slf4j
@@ -30,9 +33,12 @@ public class GlobalExceptionHandler {
                 .findFirst()
                 .map(error -> error.getDefaultMessage())
                 .orElse("필수 입력값을 확인해주세요");
+        List<ErrorResponse.FieldError> errors = e.getBindingResult().getFieldErrors().stream()
+                .map(error -> new ErrorResponse.FieldError(error.getField(), error.getDefaultMessage()))
+                .toList();
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.of(HttpStatus.BAD_REQUEST, message));
+                .body(ErrorResponse.of(CommonErrorCode.METHOD_ARGUMENT_NOT_VALID, message, errors));
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
@@ -46,7 +52,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.of(HttpStatus.BAD_REQUEST, "요청하신 응답을 읽을 수 없습니다"));
+                .body(ErrorResponse.of(CommonErrorCode.HTTP_MESSAGE_NOT_READABLE, "요청하신 응답을 읽을 수 없습니다"));
     }
 
     // 쿼리 파라미터·경로 변수 타입 오류 (예: 존재하지 않는 enum 값)는 500이 아닌 400으로 응답
@@ -54,21 +60,21 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException e) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.of(HttpStatus.BAD_REQUEST, "요청 파라미터 형식이 올바르지 않습니다"));
+                .body(ErrorResponse.of(CommonErrorCode.METHOD_ARGUMENT_NOT_VALID, "요청 파라미터 형식이 올바르지 않습니다"));
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoHandlerFound(NoHandlerFoundException e) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(ErrorResponse.of(HttpStatus.NOT_FOUND, "요청하신 경로를 찾을 수 없습니다"));
+                .body(ErrorResponse.of(CommonErrorCode.NO_HANDLER_FOUND, "요청하신 경로를 찾을 수 없습니다"));
     }
 
     @ExceptionHandler(NoResourceFoundException.class) // Spring 6.1+: 매핑되지 않은 경로는 이 예외로 발생
     public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException e) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(ErrorResponse.of(HttpStatus.NOT_FOUND, "요청하신 경로를 찾을 수 없습니다"));
+                .body(ErrorResponse.of(CommonErrorCode.NO_HANDLER_FOUND, "요청하신 경로를 찾을 수 없습니다"));
     }
 
     @ExceptionHandler(Exception.class)
@@ -76,7 +82,7 @@ public class GlobalExceptionHandler {
         log.error("처리되지 않은 예외", e);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, "오류가 발생했습니다"));
+                .body(ErrorResponse.of(CommonErrorCode.SERVER_ERROR, "오류가 발생했습니다"));
     }
 
 }

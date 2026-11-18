@@ -21,7 +21,7 @@ public class ScheduleCreateServiceImpl implements ScheduleCreateService {
 
     @Override
     @Transactional
-    public Long createSchedule(JwtPrincipal principal, Long classId, ScheduleRequest.Create request) {
+    public Long createSchedule(JwtPrincipal principal, Long classId, ScheduleRequest.ScheduleCreateRequest request) {
         // 해당 수업의 담당 교사만 등록 가능
         accessValidator.requireTeacher(classId, principal.userId());
 

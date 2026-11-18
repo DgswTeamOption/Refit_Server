@@ -21,7 +21,7 @@ public class ScheduleUpdateServiceImpl implements ScheduleUpdateService {
 
     @Override
     @Transactional
-    public void updateSchedule(JwtPrincipal principal, Long classId, Long scheduleId, ScheduleRequest.Update request) {
+    public void updateSchedule(JwtPrincipal principal, Long classId, Long scheduleId, ScheduleRequest.ScheduleUpdateRequest request) {
         // 해당 수업의 담당 교사만 가능
         accessValidator.requireTeacher(classId, principal.userId());
 

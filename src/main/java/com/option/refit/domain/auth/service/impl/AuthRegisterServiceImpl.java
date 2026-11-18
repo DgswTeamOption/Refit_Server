@@ -12,6 +12,7 @@ import com.option.refit.domain.user.repository.UserRepository;
 import com.option.refit.global.error.authError.exception.DuplicateEmailException;
 import com.option.refit.global.google.GoogleIdTokenVerifier;
 import com.option.refit.global.google.GoogleUserInfo;
+import com.option.refit.global.verification.VerificationCodeStore;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
     private final UserRepository userRepository;
     private final EmailVerifyCodeService emailVerifyCodeService;
     private final GoogleIdTokenVerifier googleIdTokenVerifier;
+    private final VerificationCodeStore codeStore;
 
     @Override
     @Transactional
@@ -34,9 +36,14 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
         if (userRepository.existsByEmailIdAndDeletedAtIsNull(request.emailId())) {
             throw new DuplicateEmailException();
         }
-        emailVerifyCodeService.verifyCode(new EmailVerifyCodeRequest(request.emailId(), request.verificationToken()));
+        // 웹처럼 verify-code 로 먼저 인증을 마친 경우 코드는 이미 소모됐으므로 인증 완료 표시로 갈음한다
+        if (!codeStore.isVerified(request.emailId())) {
+            emailVerifyCodeService.verifyCode(new EmailVerifyCodeRequest(request.emailId(), request.verificationToken()));
+        }
         releaseDeletedEmail(request.emailId());
-        return create(request.emailId(), request.name(), request.role(), null);
+        RegisterResponse response = create(request.emailId(), request.name(), request.role(), null);
+        codeStore.deleteVerified(request.emailId()); // 인증 완료 상태는 1회용
+        return response;
     }
 
     @Override

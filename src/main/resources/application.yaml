@@ -1,3 +1,7 @@
+server:
+  # 리버스 프록시의 X-Forwarded-Proto/Host를 반영 (Swagger servers URL이 https로 생성되도록)
+  forward-headers-strategy: framework
+
 spring:
   config:
     import: optional:file:.env[.properties]
@@ -41,8 +45,8 @@ spring:
 
 jwt:
   secret: ${JWT_SECRET}
-  access-expiration-ms: 1800000      # 30분
-  refresh-expiration-ms: 1209600000  # 14일
+  access-expiration-ms: 5184000000   # 60일
+  refresh-expiration-ms: 5184000000  # 60일
   refresh-cookie:
     secure: ${REFRESH_COOKIE_SECURE:true}
     same-site: ${REFRESH_COOKIE_SAME_SITE:Lax}  # refit.team 하위 도메인끼리는 Lax, 다른 사이트면 None(+Secure)
