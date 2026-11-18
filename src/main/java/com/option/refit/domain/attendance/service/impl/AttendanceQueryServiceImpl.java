@@ -106,8 +106,8 @@ public class AttendanceQueryServiceImpl implements AttendanceQueryService {
 
         // 그 날짜에 일정이 잡힌 학생 (일정이 없는 수강생은 출석 대상이 아닐 수 있어 구분해서 내려준다)
         Set<Long> scheduled = new HashSet<>();
-        scheduleRepository.findMonthlySchedules(classId, null, date.atStartOfDay(), date.atTime(LocalTime.MAX))
-                .forEach(schedule -> scheduled.add(schedule.getStudentId()));
+        scheduled.addAll(scheduleRepository.findScheduledStudentIds(
+                classId, null, date.atStartOfDay(), date.atTime(LocalTime.MAX)));
 
         // 현재 수강생 명단(left_at IS NULL)에서 출석·지각 기록이 없는 학생
         return memberRepository.findAllByClassroom_IdAndLeftAtIsNull(classId).stream()
@@ -145,10 +145,9 @@ public class AttendanceQueryServiceImpl implements AttendanceQueryService {
 
         // 기록이 없는 학생도 0건으로 보이도록, 해당 월에 일정이 잡힌 학생을 함께 포함
         Set<Long> studentIds = new TreeSet<>(counts.keySet());
-        scheduleRepository.findMonthlySchedules(
-                        classId, onlyStudentId, yearMonth.atDay(1).atStartOfDay(),
-                        yearMonth.atEndOfMonth().atTime(LocalTime.MAX))
-                .forEach(schedule -> studentIds.add(schedule.getStudentId()));
+        studentIds.addAll(scheduleRepository.findScheduledStudentIds(
+                classId, onlyStudentId, yearMonth.atDay(1).atStartOfDay(),
+                yearMonth.atEndOfMonth().atTime(LocalTime.MAX)));
 
         Map<Long, String> names = findNames(studentIds);
 
