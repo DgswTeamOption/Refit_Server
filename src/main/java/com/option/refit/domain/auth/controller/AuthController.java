@@ -14,6 +14,10 @@ import com.option.refit.global.common.ApiResponse;
 import com.option.refit.global.error.jwtError.exception.MissingTokenException;
 import com.option.refit.global.jwt.ClientType;
 import com.option.refit.global.jwt.RefreshTokenCookie;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -34,6 +38,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private static final String CLIENT_HEADER = "X-Client";
+    private static final String CLIENT_DESC = "클라이언트 종류. web이면 Refresh Token을 쿠키로, 그 외(app, 생략 시 기본값)는 응답 body로 주고받습니다.";
+    private static final String COOKIE_NOTE = "웹(X-Client: web)이면 응답에 Set-Cookie(refreshToken)가 내려가고 body에는 Refresh Token이 없습니다. 앱이면 body로 내려갑니다.";
 
     private final AuthRegisterService registerService;
     private final AuthLoginService loginService;
@@ -46,9 +52,13 @@ public class AuthController {
         return ApiResponse.ok(registerService.registerByEmail(request));
     }
 
+    @Operation(description = COOKIE_NOTE,
+            responses = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",
+                    description = "성공", headers = @Header(name = "Set-Cookie", description = "refreshToken 쿠키 (웹일 때만)")))
     @PostMapping("/login")
     public ApiResponse<TokenResponse> login(
             @Valid @RequestBody EmailLoginRequest request,
+            @Parameter(description = CLIENT_DESC, schema = @Schema(allowableValues = {"web", "app"}, defaultValue = "app"))
             @RequestHeader(value = CLIENT_HEADER, required = false) String clientHeader,
             HttpServletResponse response) {
         ClientType client = ClientType.from(clientHeader);
@@ -61,9 +71,13 @@ public class AuthController {
         return ApiResponse.ok(registerService.registerByGoogle(request));
     }
 
+    @Operation(description = COOKIE_NOTE,
+            responses = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",
+                    description = "성공", headers = @Header(name = "Set-Cookie", description = "refreshToken 쿠키 (웹일 때만)")))
     @PostMapping("/google/login")
     public ApiResponse<TokenResponse> googleLogin(
             @Valid @RequestBody GoogleLoginRequest request,
+            @Parameter(description = CLIENT_DESC, schema = @Schema(allowableValues = {"web", "app"}, defaultValue = "app"))
             @RequestHeader(value = CLIENT_HEADER, required = false) String clientHeader,
             HttpServletResponse response) {
         ClientType client = ClientType.from(clientHeader);
@@ -71,8 +85,12 @@ public class AuthController {
     }
 
     // Access Token 재발급 (Refresh Token도 교체). 웹: 쿠키로 받고 쿠키로 전달 / 앱: body로 받고 body로 전달
+    @Operation(description = "Refresh Token 우선순위: 웹(X-Client: web)은 쿠키만, 앱은 body만 사용합니다(서로 대체 불가). " + COOKIE_NOTE,
+            responses = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",
+                    description = "성공", headers = @Header(name = "Set-Cookie", description = "새 refreshToken 쿠키 (웹일 때만)")))
     @PostMapping("/refresh")
     public ApiResponse<TokenResponse> refresh(
+            @Parameter(description = CLIENT_DESC, schema = @Schema(allowableValues = {"web", "app"}, defaultValue = "app"))
             @RequestHeader(value = CLIENT_HEADER, required = false) String clientHeader,
             @CookieValue(name = RefreshTokenCookie.NAME, required = false) String cookieToken,
             @RequestBody(required = false) RefreshTokenRequest body,
@@ -86,8 +104,10 @@ public class AuthController {
     }
 
     // Redis의 Refresh Token 삭제. 웹이면 쿠키도 만료시킴
+    @Operation(description = "웹은 쿠키, 앱은 body의 Refresh Token을 사용합니다. 웹이면 refreshToken 쿠키를 만료시킵니다(Set-Cookie).")
     @PostMapping("/logout")
     public ApiResponse<Void> logout(
+            @Parameter(description = CLIENT_DESC, schema = @Schema(allowableValues = {"web", "app"}, defaultValue = "app"))
             @RequestHeader(value = CLIENT_HEADER, required = false) String clientHeader,
             @CookieValue(name = RefreshTokenCookie.NAME, required = false) String cookieToken,
             @RequestBody(required = false) RefreshTokenRequest body,
