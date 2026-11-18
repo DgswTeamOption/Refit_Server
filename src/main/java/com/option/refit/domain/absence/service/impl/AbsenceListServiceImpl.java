@@ -8,7 +8,6 @@ import com.option.refit.domain.absence.service.AbsenceListService;
 import com.option.refit.domain.classroom.entity.ClassRoomEntity;
 import com.option.refit.domain.classroom.repository.ClassRoomRepository;
 import com.option.refit.domain.user.entity.Role;
-import com.option.refit.domain.user.entity.User;
 import com.option.refit.domain.user.repository.UserRepository;
 import com.option.refit.global.error.absenceError.exception.InvalidDateRangeException;
 import com.option.refit.global.error.classError.exception.ClassAccessDeniedException;

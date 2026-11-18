@@ -28,6 +28,15 @@ public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Long> 
             @Param("end") LocalDateTime end
     );
 
+    // 기간 내 일정이 잡힌 학생 ID만 조회 (엔티티 전체를 읽지 않아 월별 요약 등에서 가볍다)
+    @Query("SELECT DISTINCT s.studentId FROM ScheduleEntity s WHERE s.classId = :classId AND s.startTime BETWEEN :start AND :end AND (:studentId IS NULL OR s.studentId = :studentId)")
+    List<Long> findScheduledStudentIds(
+            @Param("classId") Long classId,
+            @Param("studentId") Long studentId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
+
     // 수업 삭제 시 회차를 소프트 삭제 (@SQLDelete 적용)
     void deleteAllByClassId(Long classId);
 }

@@ -1,6 +1,11 @@
 server:
   # 리버스 프록시의 X-Forwarded-Proto/Host를 반영 (Swagger servers URL이 https로 생성되도록)
   forward-headers-strategy: framework
+  # 응답 압축(gzip): 목록/홈 같은 JSON 응답 크기를 줄여 모바일 전송 시간을 단축
+  compression:
+    enabled: true
+    mime-types: application/json
+    min-response-size: 1024
 
 spring:
   config:
@@ -11,6 +16,11 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+    hikari:
+      # 커넥션 풀 (기본 10). 환경변수로 조정 가능. 대기 시간이 길어지면 요청이 오래 멈추므로 timeout을 짧게 둔다
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+      minimum-idle: ${DB_POOL_MIN_IDLE:5}
+      connection-timeout: 5000
   servlet:
     multipart:
       # 이미지 업로드 용량 제한 (초과 시 MaxUploadSizeExceededException -> 413)
