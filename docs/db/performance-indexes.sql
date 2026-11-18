@@ -23,3 +23,6 @@ CREATE INDEX idx_attendances_class_date ON attendances (class_id, attendance_dat
 
 -- 학생이 참여 중인 수업 목록 (classroom_members는 (classroom_id, user_id) 유니크만 있어 user_id 선두 조회에는 별도 인덱스가 필요하다)
 CREATE INDEX idx_classroom_members_user ON classroom_members (user_id, left_at);
+
+-- 챗봇 보강 시간 추천·월말 현황 (선생님별 보강 시각 범위/집계)
+CREATE INDEX idx_makeups_teacher_time ON makeups (teacher_id, makeup_time);

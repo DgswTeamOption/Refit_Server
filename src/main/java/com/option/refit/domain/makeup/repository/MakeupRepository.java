@@ -3,6 +3,7 @@ package com.option.refit.domain.makeup.repository;
 import org.springframework.data.jpa.repository.Modifying;
 import com.option.refit.domain.makeup.entity.Makeup;
 import com.option.refit.domain.makeup.entity.MakeupApprovalStatus;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -91,6 +92,46 @@ public interface MakeupRepository extends JpaRepository<Makeup, Long> {
         MakeupApprovalStatus getApprovalStatus();
 
         long getApplyCount();
+    }
+
+    // 선생님의 기간 내 보강 신청을 상태별로 집계 (챗봇 월말 현황용). 보강 시각이 [start, end)에 속하는 건
+    @Query("SELECT m.approvalStatus AS approvalStatus, COUNT(m) AS count " +
+            "FROM Makeup m " +
+            "WHERE m.teacherId = :teacherId AND m.makeupTime >= :start AND m.makeupTime < :end " +
+            "GROUP BY m.approvalStatus")
+    List<TeacherStatusCount> countByTeacherAndStatus(
+            @Param("teacherId") Long teacherId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
+
+    // 상태별 건수 프로젝션
+    interface TeacherStatusCount {
+        MakeupApprovalStatus getApprovalStatus();
+
+        long getCount();
+    }
+
+    // 신청한 학생 수 기준 인기 보강 시간대 (챗봇 시간 추천용). 거절·취소와 지난 시간은 제외, classId가 null이면 선생님의 전체 수업
+    @Query("SELECT m.makeupTime AS makeupTime, COUNT(DISTINCT m.studentId) AS applicantCount " +
+            "FROM Makeup m " +
+            "WHERE m.teacherId = :teacherId AND (:classId IS NULL OR m.classId = :classId) " +
+            "AND m.approvalStatus NOT IN :excluded AND m.makeupTime >= :now " +
+            "GROUP BY m.makeupTime " +
+            "ORDER BY COUNT(DISTINCT m.studentId) DESC, m.makeupTime ASC")
+    List<SlotApplicantCount> findPopularSlots(
+            @Param("teacherId") Long teacherId,
+            @Param("classId") Long classId,
+            @Param("excluded") Collection<MakeupApprovalStatus> excluded,
+            @Param("now") LocalDateTime now,
+            Pageable pageable
+    );
+
+    // 시간대별 신청자 수 프로젝션
+    interface SlotApplicantCount {
+        LocalDateTime getMakeupTime();
+
+        long getApplicantCount();
     }
 
     // 수업 삭제 시 해당 수업의 보강 신청을 모두 삭제
