@@ -20,8 +20,8 @@ public interface ClassRoomMemberRepository
             Long userId
     );
 
-    // 특정 사용자의 참여 중인 수업 목록과 교사 정보를 함께 조회한다.
-    @EntityGraph(attributePaths = {"classroom", "classroom.teacher"})
+    // 특정 사용자의 참여 중인 수업 목록과 교사·배너 이미지를 함께 조회한다. (배너는 목록 변환에서 수업마다 접근하므로 같이 가져와 추가 조회를 막는다)
+    @EntityGraph(attributePaths = {"classroom", "classroom.teacher", "classroom.bannerImage"})
     List<ClassRoomMemberEntity>
     findAllByUser_IdAndLeftAtIsNullOrderByJoinedAtDesc(Long userId);
 
