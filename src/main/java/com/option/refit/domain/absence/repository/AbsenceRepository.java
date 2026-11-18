@@ -2,6 +2,7 @@ package com.option.refit.domain.absence.repository;
 
 import com.option.refit.domain.absence.entity.Absence;
 import com.option.refit.domain.absence.entity.AbsenceStatus;
+import com.option.refit.domain.makeup.entity.MakeupApprovalStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -70,6 +71,39 @@ public interface AbsenceRepository extends JpaRepository<Absence, Long> {
     // 학생별 결석 집계 결과 프로젝션
     interface StudentAbsenceSummary {
         Long getStudentId();
+
+        long getAbsenceCount();
+
+        LocalDate getLastAbsenceDate();
+    }
+
+    // 여러 수업의 기간 내 특정 상태 결석 건수 (챗봇 월말 현황용)
+    long countByClassIdInAndStatusAndAbsenceDateBetween(
+            Collection<Long> classIds, AbsenceStatus status, LocalDate from, LocalDate to);
+
+    // 보강이 아직 잡히지 않은 학생·수업별 결석 집계 (챗봇 미제안 학생용)
+    // 해당 수업에 현재 참여 중인 학생만, 거절·취소를 제외한 보강 신청이 하나도 없는 경우만 남긴다
+    @Query("SELECT a.studentId AS studentId, a.classId AS classId, COUNT(a) AS absenceCount, " +
+            "MAX(a.absenceDate) AS lastAbsenceDate " +
+            "FROM Absence a " +
+            "WHERE a.classId IN :classIds AND a.status = :status " +
+            "AND EXISTS (SELECT 1 FROM ClassRoomMemberEntity cm " +
+            "WHERE cm.classroom.id = a.classId AND cm.user.id = a.studentId AND cm.leftAt IS NULL) " +
+            "AND NOT EXISTS (SELECT 1 FROM Makeup m " +
+            "WHERE m.studentId = a.studentId AND m.classId = a.classId AND m.approvalStatus NOT IN :inactiveMakeupStatuses) " +
+            "GROUP BY a.studentId, a.classId " +
+            "ORDER BY MAX(a.absenceDate) DESC")
+    List<UnproposedAbsenceSummary> summarizeUnproposed(
+            @Param("classIds") Collection<Long> classIds,
+            @Param("status") AbsenceStatus status,
+            @Param("inactiveMakeupStatuses") Collection<MakeupApprovalStatus> inactiveMakeupStatuses
+    );
+
+    // 보강 미제안 결석 집계 결과 프로젝션
+    interface UnproposedAbsenceSummary {
+        Long getStudentId();
+
+        Long getClassId();
 
         long getAbsenceCount();
 
