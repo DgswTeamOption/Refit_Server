@@ -13,6 +13,9 @@ public class ScheduleResponse {
     private final Long classId;
     private final Long studentId;
 
+    // 요일 반복 규칙에서 만들어진 회차면 규칙 ID, 직접 만든 일정이면 null
+    private final Long ruleId;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private final LocalDateTime startTime;
 
@@ -23,6 +26,7 @@ public class ScheduleResponse {
         this.scheduleId = entity.getId();
         this.classId = entity.getClassId();
         this.studentId = entity.getStudentId();
+        this.ruleId = entity.getRuleId();
         this.startTime = entity.getStartTime();
         this.endTime = entity.getEndTime();
     }

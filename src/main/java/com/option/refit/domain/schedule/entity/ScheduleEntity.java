@@ -38,12 +38,17 @@ public class ScheduleEntity extends BaseEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    // 요일 반복 규칙에서 만들어진 회차면 규칙 ID, 직접 만든 날짜형 일정이면 null
+    @Column(name = "rule_id")
+    private Long ruleId;
+
     @Builder
-    public ScheduleEntity(Long classId, Long studentId, LocalDateTime startTime, LocalDateTime endTime) {
+    public ScheduleEntity(Long classId, Long studentId, LocalDateTime startTime, LocalDateTime endTime, Long ruleId) {
         this.classId = classId;
         this.studentId = studentId;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.ruleId = ruleId;
     }
 
     public void updateTime(LocalDateTime startTime, LocalDateTime endTime) {
