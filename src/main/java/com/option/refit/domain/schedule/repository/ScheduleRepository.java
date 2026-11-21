@@ -37,6 +37,30 @@ public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Long> 
             @Param("end") LocalDateTime end
     );
 
+    boolean existsByRuleIdAndStartTime(Long ruleId, LocalDateTime startTime);
+
+    List<ScheduleEntity> findByRuleIdAndStartTimeGreaterThanEqual(Long ruleId, LocalDateTime from);
+
+    // 캘린더 전용: 승인된 결석이 있는 날짜의 회차는 제외한다. (출석 조회용 findMonthlySchedules는 그대로 둔다)
+    @Query("""
+            SELECT s FROM ScheduleEntity s
+            WHERE s.classId = :classId
+              AND s.startTime BETWEEN :start AND :end
+              AND (:studentId IS NULL OR s.studentId = :studentId)
+              AND NOT EXISTS (
+                  SELECT 1 FROM Absence a
+                  WHERE a.classId = s.classId AND a.studentId = s.studentId
+                    AND a.absenceDate = CAST(s.startTime AS LocalDate)
+                    AND a.status = com.option.refit.domain.absence.entity.AbsenceStatus.APPROVED)
+            ORDER BY s.startTime ASC
+            """)
+    List<ScheduleEntity> findMonthlyCalendarSchedules(
+            @Param("classId") Long classId,
+            @Param("studentId") Long studentId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
+
     // 수업 삭제 시 회차를 소프트 삭제 (@SQLDelete 적용)
     void deleteAllByClassId(Long classId);
 }
