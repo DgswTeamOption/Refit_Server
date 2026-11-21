@@ -52,7 +52,7 @@ public class ScheduleGetServiceImpl implements ScheduleGetService {
         LocalDateTime start = yearMonth.atDay(1).atStartOfDay();
         LocalDateTime end = yearMonth.atEndOfMonth().atTime(LocalTime.MAX);
 
-        return scheduleRepository.findMonthlyCalendarSchedules(classId, visibleStudentId(principal), start, end).stream()
+        return scheduleRepository.findMonthlySchedules(classId, visibleStudentId(principal), start, end).stream()
                 .map(ScheduleResponse::new)
                 .collect(Collectors.toList());
     }
