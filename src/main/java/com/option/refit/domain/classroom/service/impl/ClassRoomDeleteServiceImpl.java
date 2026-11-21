@@ -13,6 +13,7 @@ import com.option.refit.domain.makeup.repository.MakeupRepository;
 import com.option.refit.domain.nfc.repository.NfcTagRepository;
 import com.option.refit.domain.notice.repository.NoticeRepository;
 import com.option.refit.domain.schedule.repository.ScheduleRepository;
+import com.option.refit.domain.schedule.repository.ScheduleRuleRepository;
 import com.option.refit.domain.user.entity.Role;
 import com.option.refit.domain.user.entity.User;
 import com.option.refit.global.error.classError.exception.ClassAccessDeniedException;
@@ -34,6 +35,7 @@ public class ClassRoomDeleteServiceImpl implements ClassRoomDeleteService {
     private final ClassRoomRepository classroomRepository;
     private final ClassRoomMemberRepository memberRepository;
     private final ScheduleRepository scheduleRepository;
+    private final ScheduleRuleRepository scheduleRuleRepository;
     private final AbsenceRepository absenceRepository;
     private final MakeupRepository makeupRepository;
     private final MakeupAvailabilityRepository makeupAvailabilityRepository;
@@ -73,6 +75,7 @@ public class ClassRoomDeleteServiceImpl implements ClassRoomDeleteService {
         absenceRepository.deleteAllByClassId(classroomId);
         noticeRepository.deleteAllByClassId(classroomId);
         scheduleRepository.deleteAllByClassId(classroomId);
+        scheduleRuleRepository.deleteAllByClassId(classroomId);
         memberRepository.deleteAllByClassroomId(classroomId);
 
         // 수업 행 삭제 후(FK 해소) 배너 파일도 함께 정리
