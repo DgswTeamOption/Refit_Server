@@ -62,17 +62,10 @@ src/main/java/com/option/refit/
 DB 접속 정보는 `.env`로 관리합니다. 프로젝트 루트에 `.env` 파일을 만들고 아래 값을 채워주세요.
 
 ```
-DB_URL=jdbc:mysql://localhost:3306/process
+DB_URL=
 DB_USERNAME=root
 DB_PASSWORD=
 ```
-
-### API 서버 주소 (운영)
-
-- Base URL: `https://refit.team` (HTTPS 전용, 포트 번호 없음. 기존 IP/http 주소 사용 금지)
-- Swagger: https://refit.team/swagger-ui/index.html
-- CORS 허용 출처: `https://refit.team`, `https://www.refit.team` (다른 도메인에서 호스팅하면 `CORS_ALLOWED_ORIGINS`에 추가)
-- 전체 환경변수 목록은 `.env.example` 참고
 
 ### 2. Redis 설치 및 실행
 
