@@ -26,6 +26,12 @@ public class UserController {
     private final UserGetProfileService userGetProfileService;
     private final UserUpdateProfileService userUpdateProfileService;
 
+    @Operation(summary = "내 프로필 조회", description = "인증 토큰으로 로그인한 사용자의 프로필을 조회합니다.")
+    @GetMapping("/users/me")
+    public ApiResponse<UserProfileResponse> getMyProfile(@AuthenticationPrincipal JwtPrincipal principal) {
+        return ApiResponse.ok(userGetProfileService.getUserProfile(principal.userId()));
+    }
+
     @Operation(description = "본인 프로필만 조회할 수 있습니다. 토큰의 사용자와 userId가 다르면 403을 반환합니다.")
     @GetMapping("/users/{userId}")
     public ApiResponse<UserProfileResponse> getProfile(
@@ -37,9 +43,7 @@ public class UserController {
             throw new UserAccessDeniedException();
         }
 
-        UserProfileResponse response = userGetProfileService.getUserProfile(principal.userId());
-
-        return ApiResponse.ok(response);
+        return getMyProfile(principal);
     }
 
     @PatchMapping("/setting/username")
