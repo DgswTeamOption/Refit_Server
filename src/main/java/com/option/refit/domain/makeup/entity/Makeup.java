@@ -29,7 +29,8 @@ public class Makeup extends BaseEntity {
     @Column(name = "class_id", nullable = false)
     private Long classId;
 
-    @Column(name = "schedule_id", nullable = false)
+    // 학생이 직접 제안한 보강은 대상 회차가 없어 null
+    @Column(name = "schedule_id")
     private Long scheduleId;
 
     @Column(name = "makeup_time", nullable = false)

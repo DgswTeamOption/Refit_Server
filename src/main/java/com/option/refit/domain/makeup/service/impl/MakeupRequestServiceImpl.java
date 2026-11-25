@@ -1,5 +1,8 @@
 package com.option.refit.domain.makeup.service.impl;
 
+import com.option.refit.domain.classroom.entity.ClassRoomEntity;
+import com.option.refit.domain.classroom.repository.ClassRoomMemberRepository;
+import com.option.refit.domain.classroom.repository.ClassRoomRepository;
 import com.option.refit.domain.makeup.dto.MakeupRequest;
 import com.option.refit.domain.makeup.dto.MakeupResponse;
 import com.option.refit.domain.makeup.entity.Makeup;
@@ -11,6 +14,8 @@ import com.option.refit.domain.makeup.service.MakeupRequestService;
 import com.option.refit.domain.schedule.entity.ScheduleEntity;
 import com.option.refit.domain.schedule.repository.ScheduleRepository;
 import com.option.refit.domain.user.entity.Role;
+import com.option.refit.global.error.classError.exception.ClassAccessDeniedException;
+import com.option.refit.global.error.classError.exception.ClassNotFoundException;
 import com.option.refit.global.error.makeupError.exception.DuplicateMakeupException;
 import com.option.refit.global.error.makeupError.exception.InvalidDateRangeException;
 import com.option.refit.global.error.makeupError.exception.MakeupAvailabilityNotFoundException;
@@ -31,6 +36,8 @@ public class MakeupRequestServiceImpl implements MakeupRequestService {
     private final MakeupRepository makeupRepository;
     private final MakeupAvailabilityRepository availabilityRepository;
     private final ScheduleRepository scheduleRepository;
+    private final ClassRoomRepository classRoomRepository;
+    private final ClassRoomMemberRepository classRoomMemberRepository;
 
     @Override
     @Transactional
@@ -38,6 +45,11 @@ public class MakeupRequestServiceImpl implements MakeupRequestService {
         // 학생만 신청 가능 (403)
         if (principal.role() != Role.STUDENT) {
             throw new RoleAccessDeniedException();
+        }
+
+        // schedule_id가 없으면 학생이 직접 시간을 제안하는 신청
+        if (request.getScheduleId() == null) {
+            return proposeMakeup(principal, request);
         }
 
         // 존재하지 않는 수업 / 기존 수업 일정 (404)
@@ -78,6 +90,39 @@ public class MakeupRequestServiceImpl implements MakeupRequestService {
                 .teacherId(availability.getTeacherId())
                 .classId(request.getClassId())
                 .scheduleId(request.getScheduleId())
+                .makeupTime(request.getMakeupTime())
+                .build();
+
+        return new MakeupResponse(makeupRepository.save(makeup));
+    }
+
+    // 학생이 직접 제안: 가능 시간 등록·정원 없이 선생님(수업 담당)에게 바로 대기 상태로 신청한다
+    private MakeupResponse proposeMakeup(JwtPrincipal principal, MakeupRequest request) {
+        // 존재하지 않는 수업 (404)
+        ClassRoomEntity classRoom = classRoomRepository.findById(request.getClassId())
+                .orElseThrow(ClassNotFoundException::new);
+
+        // 참여 중인 수업에만 제안 가능 (403)
+        if (!classRoomMemberRepository.existsByClassroom_IdAndUser_IdAndLeftAtIsNull(
+                request.getClassId(), principal.userId())) {
+            throw new ClassAccessDeniedException();
+        }
+
+        // 이미 지난 시간은 신청 불가 (400)
+        if (request.getMakeupTime().isBefore(LocalDateTime.now())) {
+            throw new InvalidDateRangeException();
+        }
+
+        // 같은 시간에 유효한(거절·취소 제외) 제안이 있으면 중복 (409)
+        if (makeupRepository.existsByStudentIdAndClassIdAndScheduleIdIsNullAndMakeupTimeAndApprovalStatusNotIn(
+                principal.userId(), request.getClassId(), request.getMakeupTime(), MakeupApprovalStatus.INACTIVE)) {
+            throw new DuplicateMakeupException();
+        }
+
+        Makeup makeup = Makeup.builder()
+                .studentId(principal.userId())
+                .teacherId(classRoom.getTeacher().getId())
+                .classId(request.getClassId())
                 .makeupTime(request.getMakeupTime())
                 .build();
 

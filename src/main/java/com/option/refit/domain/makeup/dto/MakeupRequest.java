@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-// 보강 신청: class_id, schedule_id, makeup_time
+// 보강 신청: class_id, makeup_time (+ 선택: schedule_id)
+// schedule_id가 있으면 선생님이 등록한 가능 시간 중 선택, 없으면 학생이 직접 시간을 제안
+
 @Getter
 @NoArgsConstructor
 public class MakeupRequest {
@@ -18,7 +20,6 @@ public class MakeupRequest {
     private Long classId;
 
     @JsonProperty("schedule_id")
-    @NotNull(message = "수업 일정은 필수입니다.")
     private Long scheduleId;
 
     @JsonProperty("makeup_time")

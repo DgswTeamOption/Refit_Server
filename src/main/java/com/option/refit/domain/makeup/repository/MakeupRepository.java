@@ -24,6 +24,10 @@ public interface MakeupRepository extends JpaRepository<Makeup, Long> {
     boolean existsByStudentIdAndClassIdAndScheduleIdAndApprovalStatusNotIn(
             Long studentId, Long classId, Long scheduleId, Collection<MakeupApprovalStatus> statuses);
 
+    // 학생이 직접 제안한 보강(회차 없음)의 같은 시간 중복 확인 (거절·취소 제외)
+    boolean existsByStudentIdAndClassIdAndScheduleIdIsNullAndMakeupTimeAndApprovalStatusNotIn(
+            Long studentId, Long classId, LocalDateTime makeupTime, Collection<MakeupApprovalStatus> statuses);
+
     // 학생이 해당 회차에 대해 받은 보강 중 특정 승인 상태인 건 (NFC 출석에서 승인된 보강 확인용)
     List<Makeup> findByStudentIdAndClassIdAndScheduleIdAndApprovalStatus(
             Long studentId, Long classId, Long scheduleId, MakeupApprovalStatus status);
