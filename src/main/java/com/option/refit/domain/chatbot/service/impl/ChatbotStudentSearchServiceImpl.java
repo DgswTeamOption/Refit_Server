@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Predicate;
@@ -57,6 +58,22 @@ public class ChatbotStudentSearchServiceImpl implements ChatbotStudentSearchServ
 
         String text = message.toLowerCase(Locale.ROOT);
         return collectStudents(principal, studentName -> text.contains(studentName.toLowerCase(Locale.ROOT)));
+    }
+
+    @Override
+    public List<ChatbotStudentResponse> findStudentsByPartialName(JwtPrincipal principal, String message) {
+        teacherValidator.requireTeacher(principal);
+
+        List<String> words = Arrays.stream(message.toLowerCase(Locale.ROOT).split("\\s+"))
+                .filter(word -> !word.isBlank())
+                .toList();
+        if (words.isEmpty()) {
+            return List.of();
+        }
+        return collectStudents(principal, studentName -> {
+            String lowerName = studentName.toLowerCase(Locale.ROOT);
+            return words.stream().anyMatch(lowerName::contains);
+        });
     }
 
     // 수업마다 이름만 먼저 확인하고, 이름이 맞는 학생이 있는 수업만 결석·보강 횟수까지 조회한다
