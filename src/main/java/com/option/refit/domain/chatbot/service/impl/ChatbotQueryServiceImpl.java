@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-// 1차 버전: LLM 없이 키워드로 라우팅한다. 우선순위는 학생 이름 > 추천 > 미제안 > 이번달/현황 > 안내
+// 1차 버전: LLM 없이 키워드로 라우팅한다. 우선순위는 학생 이름 > 추천 > 미제안 > 이번달/현황 > 이름 일부 > 안내
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -61,6 +61,13 @@ public class ChatbotQueryServiceImpl implements ChatbotQueryService {
             String text = status.month() + "월 결석 " + status.absenceCount() + "건, 보강 "
                     + status.makeupCount() + "건(대기 " + status.pendingMakeupCount() + "건)이에요.";
             return new ChatbotQueryResponse(ChatbotQueryType.MONTHLY_STATUS, text, status);
+        }
+
+        // 키워드도 없으면 이름 일부만 입력한 경우(예: "김")로 보고 부분 일치 학생을 찾는다
+        List<ChatbotStudentResponse> partialMatches = studentSearchService.findStudentsByPartialName(principal, message);
+        if (!partialMatches.isEmpty()) {
+            return new ChatbotQueryResponse(ChatbotQueryType.STUDENT,
+                    "학생 정보 " + partialMatches.size() + "건을 찾았어요.", partialMatches);
         }
 
         return new ChatbotQueryResponse(ChatbotQueryType.GUIDE, GUIDE_MESSAGE, null);
