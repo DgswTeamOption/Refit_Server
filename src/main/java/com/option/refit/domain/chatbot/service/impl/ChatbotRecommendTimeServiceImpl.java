@@ -31,7 +31,9 @@ public class ChatbotRecommendTimeServiceImpl implements ChatbotRecommendTimeServ
     private final ClassRoomAccessValidator accessValidator;
     private final MakeupRepository makeupRepository;
 
+    // 챗봇 쪽에서 이 예외를 잡아 정상 응답으로 바꾸므로, 같은 트랜잭션이 rollback-only로 표시되지 않게 한다
     @Override
+    @Transactional(readOnly = true, noRollbackFor = NoRecommendationDataException.class)
     public List<ChatbotRecommendedTimeResponse> recommend(JwtPrincipal principal, Long classId) {
         teacherValidator.requireTeacher(principal);
 
