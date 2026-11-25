@@ -4,6 +4,7 @@ import com.option.refit.domain.chatbot.dto.response.ChatbotStudentResponse;
 import com.option.refit.domain.chatbot.service.ChatbotStudentSearchService;
 import com.option.refit.domain.chatbot.service.ChatbotTeacherValidator;
 import com.option.refit.domain.classroom.entity.ClassRoomEntity;
+import com.option.refit.domain.classroom.repository.ClassRoomMemberRepository;
 import com.option.refit.domain.classroom.repository.ClassRoomRepository;
 import com.option.refit.domain.classroom.service.ClassRoomStudentListService;
 import com.option.refit.domain.user.entity.User;
@@ -28,6 +29,7 @@ public class ChatbotStudentSearchServiceImpl implements ChatbotStudentSearchServ
     private final ChatbotTeacherValidator teacherValidator;
     private final UserRepository userRepository;
     private final ClassRoomRepository classRoomRepository;
+    private final ClassRoomMemberRepository memberRepository;
     private final ClassRoomStudentListService studentListService;
 
     @Override
@@ -41,7 +43,7 @@ public class ChatbotStudentSearchServiceImpl implements ChatbotStudentSearchServ
 
         String keyword = name.trim().toLowerCase(Locale.ROOT);
         List<ChatbotStudentResponse> found = collectStudents(
-                principal, student -> student.name().toLowerCase(Locale.ROOT).contains(keyword));
+                principal, studentName -> studentName.toLowerCase(Locale.ROOT).contains(keyword));
 
         if (found.isEmpty()) {
             throw new ChatbotStudentNotFoundException();
@@ -54,19 +56,20 @@ public class ChatbotStudentSearchServiceImpl implements ChatbotStudentSearchServ
         teacherValidator.requireTeacher(principal);
 
         String text = message.toLowerCase(Locale.ROOT);
-        return collectStudents(principal, student -> text.contains(student.name().toLowerCase(Locale.ROOT)));
+        return collectStudents(principal, studentName -> text.contains(studentName.toLowerCase(Locale.ROOT)));
     }
 
-    // 선생님의 모든 수업에서 학생 목록(결석·보강 횟수 포함)을 기존 수업 학생 조회 서비스로 가져와 조건에 맞는 학생만 남긴다
-    private List<ChatbotStudentResponse> collectStudents(
-            JwtPrincipal principal, Predicate<ChatbotStudentResponse> filter) {
+    // 수업마다 이름만 먼저 확인하고, 이름이 맞는 학생이 있는 수업만 결석·보강 횟수까지 조회한다
+    private List<ChatbotStudentResponse> collectStudents(JwtPrincipal principal, Predicate<String> nameFilter) {
         User teacher = userRepository.findByIdAndDeletedAtIsNull(principal.userId())
                 .orElseThrow(UserNotFoundException::new);
 
         List<ClassRoomEntity> classes = classRoomRepository.findAllByTeacher_IdOrderByCreatedAtDesc(teacher.getId());
 
         return classes.stream()
+                .filter(classroom -> hasMatchingStudent(classroom, nameFilter))
                 .flatMap(classroom -> studentListService.getStudents(classroom.getId(), teacher).stream()
+                        .filter(student -> nameFilter.test(student.name()))
                         .map(student -> new ChatbotStudentResponse(
                                 student.studentId(),
                                 student.name(),
@@ -76,7 +79,13 @@ public class ChatbotStudentSearchServiceImpl implements ChatbotStudentSearchServ
                                 student.absenceCount(),
                                 student.makeupCount(),
                                 student.lastAbsenceDate())))
-                .filter(filter)
                 .toList();
+    }
+
+    private boolean hasMatchingStudent(ClassRoomEntity classroom, Predicate<String> nameFilter) {
+        return memberRepository
+                .findAllByClassroom_IdAndLeftAtIsNullAndUser_DeletedAtIsNullOrderByUser_NameAsc(classroom.getId())
+                .stream()
+                .anyMatch(member -> nameFilter.test(member.getUser().getName()));
     }
 }
