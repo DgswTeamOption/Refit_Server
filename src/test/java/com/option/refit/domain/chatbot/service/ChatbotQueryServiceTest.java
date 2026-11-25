@@ -96,4 +96,25 @@ class ChatbotQueryServiceTest {
         assertThat(response.type()).isEqualTo(ChatbotQueryType.GUIDE);
         assertThat(response.data()).isNull();
     }
+
+    @Test
+    void partialNameReturnsMatchedStudentsInsteadOfGuide() {
+        when(studentSearchService.findMentionedStudents(eq(teacher), any())).thenReturn(List.of());
+        when(studentSearchService.findStudentsByPartialName(eq(teacher), any())).thenReturn(List.of(
+                new ChatbotStudentResponse(2L, "김철수", null, 10L, "수학반", 1, 0, null)));
+
+        ChatbotQueryResponse response = query("김");
+
+        assertThat(response.type()).isEqualTo(ChatbotQueryType.STUDENT);
+    }
+
+    @Test
+    void partialNameIsNotTriedWhenKeywordMatches() {
+        when(studentSearchService.findMentionedStudents(eq(teacher), any())).thenReturn(List.of());
+        when(recommendTimeService.recommend(teacher, null)).thenReturn(List.of());
+
+        query("추천");
+
+        verify(studentSearchService, never()).findStudentsByPartialName(any(), any());
+    }
 }

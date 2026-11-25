@@ -79,6 +79,25 @@ class ChatbotStudentSearchServiceTest {
         verify(studentListService, never()).getStudents(any(), any());
     }
 
+    @Test
+    void partialNameMatchesStudentWhoseNameContainsTheWord() {
+        User teacher = teacher();
+        ClassRoomEntity mathClass = classroom(10L, "수학반");
+        ClassRoomMemberEntity kim = member("김철수");
+        ClassRoomMemberEntity lee = member("이영희");
+        when(userRepository.findByIdAndDeletedAtIsNull(1L)).thenReturn(Optional.of(teacher));
+        when(classRoomRepository.findAllByTeacher_IdOrderByCreatedAtDesc(1L)).thenReturn(List.of(mathClass));
+        when(memberRepository.findAllByClassroom_IdAndLeftAtIsNullAndUser_DeletedAtIsNullOrderByUser_NameAsc(10L))
+                .thenReturn(List.of(kim, lee));
+        when(studentListService.getStudents(eq(10L), any())).thenReturn(List.of(
+                new ClassRoomStudentResponse(100L, "김철수", null, 1L, 2L, null),
+                new ClassRoomStudentResponse(101L, "이영희", null, 0L, 0L, null)));
+
+        List<ChatbotStudentResponse> result = service.findStudentsByPartialName(principal, "김");
+
+        assertThat(result).extracting(ChatbotStudentResponse::name).containsExactly("김철수");
+    }
+
     private static User teacher() {
         User user = org.mockito.Mockito.mock(User.class);
         when(user.getId()).thenReturn(1L);
@@ -94,9 +113,9 @@ class ChatbotStudentSearchServiceTest {
 
     private static ClassRoomMemberEntity member(String name) {
         User user = org.mockito.Mockito.mock(User.class);
-        when(user.getName()).thenReturn(name);
+        org.mockito.Mockito.lenient().when(user.getName()).thenReturn(name);
         ClassRoomMemberEntity member = org.mockito.Mockito.mock(ClassRoomMemberEntity.class);
-        when(member.getUser()).thenReturn(user);
+        org.mockito.Mockito.lenient().when(member.getUser()).thenReturn(user);
         return member;
     }
 }
