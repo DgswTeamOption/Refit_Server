@@ -38,8 +38,12 @@ class MakeupAvailabilityResponseAssemblerTest {
     private EntityManager entityManager;
 
     private MakeupAvailability availability(long scheduleId, int capacity) {
+        return availability(scheduleId, capacity, TIME);
+    }
+
+    private MakeupAvailability availability(long scheduleId, int capacity, LocalDateTime time) {
         return availabilityRepository.save(MakeupAvailability.builder()
-                .classId(1L).teacherId(2L).scheduleId(scheduleId).makeupTime(TIME).capacity(capacity).build());
+                .classId(1L).teacherId(2L).scheduleId(scheduleId).makeupTime(time).capacity(capacity).build());
     }
 
     private Makeup apply(long studentId, long scheduleId, boolean approve, boolean reject, boolean cancel) {
@@ -54,7 +58,7 @@ class MakeupAvailabilityResponseAssemblerTest {
     @Test
     void countsOnlyPendingAndApprovedAndComputesFlags() {
         MakeupAvailability busy = availability(10L, 3);
-        MakeupAvailability empty = availability(11L, 2);
+        MakeupAvailability empty = availability(11L, 2, TIME.plusDays(1)); // 다른 시간대
         apply(100L, 10L, false, false, false); // 대기
         apply(101L, 10L, true, false, false);  // 승인
         apply(102L, 10L, false, true, false);  // 거절 (제외)
@@ -81,5 +85,20 @@ class MakeupAvailabilityResponseAssemblerTest {
         assertThat(e.isCanChangeTime()).isTrue();
         assertThat(e.isCanDelete()).isTrue();
         assertThat(e.getLockReason()).isNull();
+    }
+
+    @Test
+    void sumsApplicationsOfDifferentSchedulesAtSameTime() {
+        // 같은 수업·시간에 일정이 다른 학생들이 신청하면 한 시간대의 정원을 함께 쓴다
+        MakeupAvailability slot = availability(10L, 3);
+        apply(100L, 10L, false, false, false); // 등록 시 묶인 일정의 학생
+        apply(200L, 20L, false, false, false); // 다른 일정의 학생
+        entityManager.flush();
+        entityManager.clear();
+
+        MakeupAvailabilityResponse r = assembler.toResponses(List.of(slot)).get(0);
+
+        assertThat(r.getAppliedCount()).isEqualTo(2);
+        assertThat(r.getRemainingCapacity()).isEqualTo(1);
     }
 }

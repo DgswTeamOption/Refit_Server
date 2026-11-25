@@ -29,6 +29,16 @@ public interface MakeupAvailabilityRepository extends JpaRepository<MakeupAvaila
             @Param("makeupTime") LocalDateTime makeupTime
     );
 
+    // 학생 신청용: 일정(schedule)과 무관하게 수업·시간으로 보강 가능 시간을 찾는다 (가능 시간은 수업 단위로 열려 있고
+    // schedule_id는 등록 시 지정한 일정일 뿐이라, 다른 학생도 같은 시간을 고를 수 있어야 한다). 같은 시간이 여러 건이면 id가 작은 건이 기준
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT a FROM MakeupAvailability a " +
+            "WHERE a.classId = :classId AND a.makeupTime = :makeupTime ORDER BY a.id ASC")
+    List<MakeupAvailability> findAllForUpdateByClassAndTime(
+            @Param("classId") Long classId,
+            @Param("makeupTime") LocalDateTime makeupTime
+    );
+
     // 수정 시 자기 자신을 제외하고 같은 수업·일정·시간이 이미 있는지 확인
     boolean existsByClassIdAndScheduleIdAndMakeupTimeAndIdNot(
             Long classId, Long scheduleId, LocalDateTime makeupTime, Long id);

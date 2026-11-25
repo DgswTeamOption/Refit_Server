@@ -50,9 +50,8 @@ public class MakeupAvailabilityUpdateServiceImpl implements MakeupAvailabilityUp
         }
 
         // 현재 이 시간대에 걸린 유효 신청(대기+승인) 수
-        long applied = makeupRepository.countByClassIdAndScheduleIdAndMakeupTimeAndApprovalStatusNotIn(
-                availability.getClassId(), availability.getScheduleId(),
-                availability.getMakeupTime(), MakeupApprovalStatus.INACTIVE);
+        long applied = makeupRepository.countByClassIdAndMakeupTimeAndApprovalStatusNotIn(
+                availability.getClassId(), availability.getMakeupTime(), MakeupApprovalStatus.INACTIVE);
 
         // 검증을 모두 마친 뒤 변경한다 (일부만 반영되는 것 방지)
         LocalDateTime newTime = request.getMakeupTime();

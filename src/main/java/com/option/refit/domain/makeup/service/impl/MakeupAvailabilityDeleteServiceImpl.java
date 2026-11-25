@@ -40,9 +40,8 @@ public class MakeupAvailabilityDeleteServiceImpl implements MakeupAvailabilityDe
         }
 
         // 대기·승인 신청이 있으면 신청 건이 갈 곳을 잃으므로 삭제 불가 (409)
-        long applied = makeupRepository.countByClassIdAndScheduleIdAndMakeupTimeAndApprovalStatusNotIn(
-                availability.getClassId(), availability.getScheduleId(),
-                availability.getMakeupTime(), MakeupApprovalStatus.INACTIVE);
+        long applied = makeupRepository.countByClassIdAndMakeupTimeAndApprovalStatusNotIn(
+                availability.getClassId(), availability.getMakeupTime(), MakeupApprovalStatus.INACTIVE);
         if (applied > 0) {
             throw new MakeupAvailabilityInUseException();
         }

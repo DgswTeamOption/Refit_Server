@@ -33,13 +33,14 @@ public class MakeupAvailabilityResponseAssembler {
         Map<Key, long[]> counts = new HashMap<>(); // [대기, 승인]
         for (MakeupRepository.AvailabilityApplyCount row : makeupRepository.countByAvailability(classIds, COUNTED)) {
             long[] c = counts.computeIfAbsent(
-                    new Key(row.getClassId(), row.getScheduleId(), row.getMakeupTime()), k -> new long[2]);
-            c[row.getApprovalStatus() == MakeupApprovalStatus.PENDING ? 0 : 1] = row.getApplyCount();
+                    new Key(row.getClassId(), row.getMakeupTime()), k -> new long[2]);
+            // 일정이 다른 신청도 같은 시간이면 같은 정원을 쓰므로 합산한다
+            c[row.getApprovalStatus() == MakeupApprovalStatus.PENDING ? 0 : 1] += row.getApplyCount();
         }
 
         return availabilities.stream().map(a -> {
             long[] c = counts.getOrDefault(
-                    new Key(a.getClassId(), a.getScheduleId(), a.getMakeupTime()), new long[2]);
+                    new Key(a.getClassId(), a.getMakeupTime()), new long[2]);
             return new MakeupAvailabilityResponse(a, c[0], c[1]);
         }).toList();
     }
@@ -48,6 +49,6 @@ public class MakeupAvailabilityResponseAssembler {
         return toResponses(List.of(availability)).get(0);
     }
 
-    private record Key(Long classId, Long scheduleId, LocalDateTime makeupTime) {
+    private record Key(Long classId, LocalDateTime makeupTime) {
     }
 }

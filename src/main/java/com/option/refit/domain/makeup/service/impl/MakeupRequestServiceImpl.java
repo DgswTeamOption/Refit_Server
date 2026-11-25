@@ -61,10 +61,11 @@ public class MakeupRequestServiceImpl implements MakeupRequestService {
             throw new RoleAccessDeniedException();
         }
 
-        // 선생님이 등록한 보강 가능 시간 중 하나여야 함 (404)
+        // 선생님이 수업에 열어 둔 보강 가능 시간 중 하나여야 함 (404). 등록 시 어떤 일정에 묶었든 수업 안의 학생은 모두 고를 수 있다
         // 행 잠금으로 같은 시간대에 동시에 신청해도 정원을 초과하지 않도록 순차 처리
         MakeupAvailability availability = availabilityRepository
-                .findForUpdate(request.getClassId(), request.getScheduleId(), request.getMakeupTime())
+                .findAllForUpdateByClassAndTime(request.getClassId(), request.getMakeupTime())
+                .stream().findFirst()
                 .orElseThrow(MakeupAvailabilityNotFoundException::new);
 
         // 이미 지난 시간은 신청 불가 (400)
@@ -79,8 +80,8 @@ public class MakeupRequestServiceImpl implements MakeupRequestService {
         }
 
         // 시간대별 정원 초과 (409): 대기+승인 건수가 정원 이상이면 마감
-        long applied = makeupRepository.countByClassIdAndScheduleIdAndMakeupTimeAndApprovalStatusNotIn(
-                request.getClassId(), request.getScheduleId(), request.getMakeupTime(), MakeupApprovalStatus.INACTIVE);
+        long applied = makeupRepository.countByClassIdAndMakeupTimeAndApprovalStatusNotIn(
+                request.getClassId(), request.getMakeupTime(), MakeupApprovalStatus.INACTIVE);
         if (applied >= availability.getCapacity()) {
             throw new MakeupCapacityExceededException();
         }

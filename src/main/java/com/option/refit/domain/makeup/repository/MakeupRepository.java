@@ -20,6 +20,10 @@ public interface MakeupRepository extends JpaRepository<Makeup, Long> {
     long countByClassIdAndScheduleIdAndMakeupTimeAndApprovalStatusNotIn(
             Long classId, Long scheduleId, LocalDateTime makeupTime, Collection<MakeupApprovalStatus> statuses);
 
+    // 수업·시간별 유효 신청 수 (일정과 무관). 가능 시간은 수업 단위로 열려 있어 일정이 다른 학생의 신청도 같은 정원을 쓴다
+    long countByClassIdAndMakeupTimeAndApprovalStatusNotIn(
+            Long classId, LocalDateTime makeupTime, Collection<MakeupApprovalStatus> statuses);
+
     // 같은 학생이 같은 수업 일정에 유효한(거절·취소 제외) 보강 신청을 이미 했는지 (중복 신청 방지)
     boolean existsByStudentIdAndClassIdAndScheduleIdAndApprovalStatusNotIn(
             Long studentId, Long classId, Long scheduleId, Collection<MakeupApprovalStatus> statuses);
